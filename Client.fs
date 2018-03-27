@@ -54,6 +54,7 @@ module Model =
             Id : Key
             Task : string
             IsCompleted : bool
+            Editing : option<string>
         }
 
         static member Key e = e.Id
@@ -63,10 +64,12 @@ module Model =
                 Id = Key.Fresh()
                 Task = task
                 IsCompleted = false
+                Editing = None
             }
 
     type TodoList =
         {
+            NewTask : string
             Todos : list<TodoEntry>
         }
 
@@ -91,51 +94,61 @@ module Update =
 
     type Message =
         | RemoveEntry of Key
+        | StartEdit of Key
         | Edit of Key * string
+        | CommitEdit of Key
+        | CancelEdit of Key
         | SetCompleted of Key * bool
+        | EditNewTask of string
+        | AddEntry
         | ClearCompleted
         | SetAllCompleted of bool
-        | New of string
+
+    let private updateAllEntries (f: list<Model.TodoEntry> -> list<Model.TodoEntry>) (model: Model.TodoList) =
+        { model with Todos = f model.Todos }
+
+    let private updateEntry key (f: Model.TodoEntry -> Model.TodoEntry) (model: Model.TodoList) =
+        model |> updateAllEntries (List.map (fun t -> if t.Id = key then f t else t))
 
     let Dispatch msg (model: Model.TodoList) =
         match msg with
+        | EditNewTask value ->
+            { model with NewTask = value }
+        | AddEntry ->
+            { model with
+                NewTask = ""
+                Todos = Model.TodoEntry.New model.NewTask :: model.Todos
+            }
         | RemoveEntry key ->
-            { model with Todos = model.Todos |> List.filter (fun e -> e.Id <> key) }
+            model |> updateAllEntries (List.filter (fun t -> t.Id <> key))
+        | StartEdit key ->
+            model |> updateEntry key (fun t -> { t with Editing = t.Editing |> Option.orElse (Some t.Task) })
         | Edit (key, value) ->
-            let updateEntry (t: Model.TodoEntry) =
-                if t.Id = key then { t with Task = value } else t
-            { model with Todos = List.map updateEntry model.Todos }
+            model |> updateEntry key (fun t -> { t with Editing = Some value })
+        | CommitEdit key ->
+            model |> updateEntry key (fun t -> { t with Task = t.Editing |> Option.defaultValue t.Task })
+        | CancelEdit key ->
+            model |> updateEntry key (fun t -> { t with Editing = None })
         | SetCompleted (key, value) ->
-            let updateEntry (t: Model.TodoEntry) =
-                if t.Id = key then { t with IsCompleted = value } else t
-            { model with Todos = List.map updateEntry model.Todos }
+            model |> updateEntry key (fun t -> { t with IsCompleted = value })
         | ClearCompleted ->
-            { model with Todos = model.Todos |> List.filter (fun e -> not e.IsCompleted) }
+            model |> updateAllEntries (List.filter (fun t -> not t.IsCompleted))
         | SetAllCompleted c ->
-            { model with Todos = model.Todos |> List.map (fun e -> { e with IsCompleted = c }) }
-        | New task ->
-            { model with Todos = Model.TodoEntry.New task :: model.Todos }
+            model |> updateAllEntries (List.map (fun t -> { t with IsCompleted = c }))
 
 module Render =
 
     type MasterTemplate = Template<"wwwroot/index.html", ClientLoad.FromDocument>
 
     module TodoEntry =
-
-        type private InternalState =
-            {
-                Draft : string
-                IsEditing : bool
-            }
-
+        
         let Render dispatch (key: Key) (todo: View<Model.TodoEntry>) =
-            let state = Var.Create { Draft = ""; IsEditing = false }
             MasterTemplate.TODO()
                 .Label(text todo.V.Task)
                 .CssAttrs(
                     [
                         Attr.ClassPred "completed" todo.V.IsCompleted
-                        Attr.ClassPred "editing" state.V.IsEditing
+                        Attr.ClassPred "editing" todo.V.Editing.IsSome
                         Attr.ClassPred "hidden" (
                             match Route.location.V, todo.V.IsCompleted with
                             | Route.Completed, false -> true
@@ -144,19 +157,19 @@ module Render =
                         )
                     ]
                 )
-                .Task(Lens state.V.Draft)
+                .EditingTask(
+                    Var.Make
+                        (V(todo.V.Editing |> Option.defaultValue ""))
+                        (fun text -> dispatch (Update.Edit (key, text)))
+                )
                 .IsCompleted(
                     Var.Make
                         (V todo.V.IsCompleted)
                         (fun x -> dispatch (Update.SetCompleted (key, x)))
                 )
                 .Remove(fun _ -> dispatch (Update.RemoveEntry key))
-                .ToggleEdit(fun _ ->
-                    todo |> View.Get (fun todo ->
-                        state.Update(fun s -> { s with Draft = todo.Task; IsEditing = true })
-                    )
-                )
-                .Edit(fun _ -> dispatch (Update.Edit (key, state.Value.Draft)))
+                .StartEdit(fun _ -> dispatch (Update.StartEdit key))
+                .Edit(fun _ -> dispatch (Update.CommitEdit key))
                 .Doc()
 
     module TodoList =
@@ -172,12 +185,16 @@ module Render =
                             not (List.isEmpty todos)
                             && todos |> List.forall (fun t -> t.IsCompleted)
                         ))
-                        (fun s -> dispatch (Update.SetAllCompleted s))
+                        (fun c -> dispatch (Update.SetAllCompleted c))
+                )
+                .Task(
+                    Var.Make
+                        (V(state.V.NewTask))
+                        (fun text -> dispatch (Update.EditNewTask text))
                 )
                 .Edit(fun e ->
                     if e.Event.Key = "Enter" then
-                        dispatch (Update.New !e.Vars.Task)
-                        e.Vars.Task := ""
+                        dispatch Update.AddEntry
                         e.Event.PreventDefault()
                 )
                 .CssFilterAll(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.All))
@@ -187,5 +204,9 @@ module Render =
 
 [<SPAEntryPoint>]
 let Main () =
-    let initState : Model.TodoList = { Todos = [] }
+    let initState : Model.TodoList = 
+        {
+            NewTask = ""
+            Todos = [] 
+        }
     MVU.Run initState Update.Dispatch Render.TodoList.Render

@@ -31,10 +31,10 @@
                 <li ws-template="TODO" ws-attr="CssAttrs">
                     <div class="view">
                         <input ws-var="IsCompleted" class="toggle" type="checkbox" />
-                        <label ws-hole="Label" ws-ondblclick="ToggleEdit"></label>
+                        <label ws-hole="Label" ws-ondblclick="StartEdit"></label>
                         <button ws-onclick="Remove" class="destroy"></button>
                     </div>
-                    <input ws-var="Task" ws-onkeyup="Edit" class="edit" name="title" />
+                    <input ws-var="EditingTask" ws-onkeyup="Edit" class="edit" name="title" />
                 </li>
             </ul>
         </section>
