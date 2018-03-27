@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>TodoMVC with WebSharper UI</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="http://todomvc.com/examples/vanillajs/node_modules/todomvc-common/base.css" />
+    <link rel="stylesheet" type="text/css" href="http://todomvc.com/examples/vanillajs/node_modules/todomvc-app-css/index.css" />
+    <style>
+        /* Don't show the not-yet-loaded templates */
+        [ws-template], [ws-children-template] {
+            display: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script type="text/javascript" src="Content/todomvc.my.head.js"></script>
+</head>
+<body id="main">
+    <section class="todoapp">
+        <header class="header">
+            <h1>todos</h1>
+            <input ws-var="Task" ws-onkeydown="Edit" class="new-todo" placeholder="What needs to be done?" autofocus>
+        </header>
+        <section class="main">
+            <input ws-var="IsCompleted" class="toggle-all" type="checkbox">
+            <label for="toggle-all">Mark all as complete</label>
+            <ul ws-hole="TODOs" class="todo-list">
+                <li ws-template="TODO" ws-attr="CssAttrs">
+                    <div class="view">
+                        <input ws-var="IsCompleted" class="toggle" type="checkbox" />
+                        <label ws-hole="Label" ws-ondblclick="ToggleEdit"></label>
+                        <button ws-onclick="Remove" class="destroy"></button>
+                    </div>
+                    <input ws-var="Task" ws-onkeyup="Edit" class="edit" name="title" />
+                </li>
+            </ul>
+        </section>
+        <footer class="footer">
+            <span class="todo-count"></span>
+            <ul class="filters">
+                <li>
+                    <a ws-attr="CssFilterAll" href="#">All</a>
+                </li>
+                <li>
+                    <a ws-attr="CssFilterActive" href="#/active">Active</a>
+                </li>
+                <li>
+                    <a ws-attr="CssFilterCompleted" href="#/completed">Completed</a>
+                </li>
+            </ul>
+            <button ws-onclick="ClearCompleted" class="clear-completed">Clear completed</button>
+        </footer>
+    </section>
+    <footer class="info">
+        <p>Double-click to edit a todo</p>
+        <p>Created by <a href="http://twitter.com/granicz">Adam Granicz</a></p>
+        <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
+    </footer>
+    <script type="text/javascript" src="Content/todomvc.my.min.js"></script>
+</body>
+</html>
