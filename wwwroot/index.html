@@ -34,7 +34,7 @@
                         <label ws-hole="Label" ws-ondblclick="StartEdit"></label>
                         <button ws-onclick="Remove" class="destroy"></button>
                     </div>
-                    <input ws-var="EditingTask" ws-onkeyup="Edit" class="edit" name="title" />
+                    <input ws-var="EditingTask" ws-onkeyup="EditKeyup" ws-onblur="EditBlur" class="edit" name="title" />
                 </li>
             </ul>
         </section>
@@ -59,6 +59,6 @@
         <p>Created by <a href="http://twitter.com/granicz">Adam Granicz</a></p>
         <p>Part of <a href="http://todomvc.com">TodoMVC</a></p>
     </footer>
-    <script type="text/javascript" src="Content/todomvc.my.min.js"></script>
+    <script type="text/javascript" src="Content/todomvc.my.js"></script>
 </body>
 </html>

@@ -92,23 +92,52 @@ module Route =
 
 module Update =
 
+    let private updateAllEntries f (model: Model.TodoList) =
+        { model with Todos = f model.Todos }
+
+    let private updateEntry key f (model: Model.TodoList) =
+        model |> updateAllEntries (List.map (fun t -> if t.Id = key then f t else t))
+
+    module Entry =
+
+        type Message =
+            | Remove
+            | StartEdit
+            | Edit of string
+            | CommitEdit
+            | CancelEdit
+            | SetCompleted of bool
+
+        let Dispatch key msg (model: Model.TodoList) =
+            match msg with
+            | Remove ->
+                model |> updateAllEntries (List.filter (fun t -> t.Id <> key))
+            | StartEdit ->
+                model |> updateEntry key (fun t ->
+                    { t with
+                        Editing = t.Editing |> Option.orElse (Some t.Task)
+                    }
+                )
+            | Edit value ->
+                model |> updateEntry key (fun t -> { t with Editing = Some value })
+            | CommitEdit ->
+                model |> updateEntry key (fun t ->
+                    { t with
+                        Task = t.Editing |> Option.defaultValue t.Task
+                        Editing = None
+                    }
+                )
+            | CancelEdit ->
+                model |> updateEntry key (fun t -> { t with Editing = None })
+            | SetCompleted value ->
+                model |> updateEntry key (fun t -> { t with IsCompleted = value })
+
     type Message =
-        | RemoveEntry of Key
-        | StartEdit of Key
-        | Edit of Key * string
-        | CommitEdit of Key
-        | CancelEdit of Key
-        | SetCompleted of Key * bool
         | EditNewTask of string
         | AddEntry
         | ClearCompleted
         | SetAllCompleted of bool
-
-    let private updateAllEntries (f: list<Model.TodoEntry> -> list<Model.TodoEntry>) (model: Model.TodoList) =
-        { model with Todos = f model.Todos }
-
-    let private updateEntry key (f: Model.TodoEntry -> Model.TodoEntry) (model: Model.TodoList) =
-        model |> updateAllEntries (List.map (fun t -> if t.Id = key then f t else t))
+        | EntryMessage of Key * Entry.Message
 
     let Dispatch msg (model: Model.TodoList) =
         match msg with
@@ -119,22 +148,12 @@ module Update =
                 NewTask = ""
                 Todos = Model.TodoEntry.New model.NewTask :: model.Todos
             }
-        | RemoveEntry key ->
-            model |> updateAllEntries (List.filter (fun t -> t.Id <> key))
-        | StartEdit key ->
-            model |> updateEntry key (fun t -> { t with Editing = t.Editing |> Option.orElse (Some t.Task) })
-        | Edit (key, value) ->
-            model |> updateEntry key (fun t -> { t with Editing = Some value })
-        | CommitEdit key ->
-            model |> updateEntry key (fun t -> { t with Task = t.Editing |> Option.defaultValue t.Task })
-        | CancelEdit key ->
-            model |> updateEntry key (fun t -> { t with Editing = None })
-        | SetCompleted (key, value) ->
-            model |> updateEntry key (fun t -> { t with IsCompleted = value })
         | ClearCompleted ->
             model |> updateAllEntries (List.filter (fun t -> not t.IsCompleted))
         | SetAllCompleted c ->
             model |> updateAllEntries (List.map (fun t -> { t with IsCompleted = c }))
+        | EntryMessage (key, msg) ->
+            model |> Entry.Dispatch key msg
 
 module Render =
 
@@ -142,7 +161,7 @@ module Render =
 
     module TodoEntry =
         
-        let Render dispatch (key: Key) (todo: View<Model.TodoEntry>) =
+        let Render dispatch (todo: View<Model.TodoEntry>) =
             MasterTemplate.TODO()
                 .Label(text todo.V.Task)
                 .CssAttrs(
@@ -160,23 +179,32 @@ module Render =
                 .EditingTask(
                     Var.Make
                         (V(todo.V.Editing |> Option.defaultValue ""))
-                        (fun text -> dispatch (Update.Edit (key, text)))
+                        (fun text -> dispatch (Update.Entry.Edit text))
+                )
+                .EditBlur(fun _ -> dispatch Update.Entry.CommitEdit)
+                .EditKeyup(fun e ->
+                    match e.Event.Key with
+                    | "Enter" -> dispatch Update.Entry.CommitEdit
+                    | "Escape" -> dispatch Update.Entry.CancelEdit
+                    | _ -> ()
                 )
                 .IsCompleted(
                     Var.Make
                         (V todo.V.IsCompleted)
-                        (fun x -> dispatch (Update.SetCompleted (key, x)))
+                        (fun x -> dispatch (Update.Entry.SetCompleted x))
                 )
-                .Remove(fun _ -> dispatch (Update.RemoveEntry key))
-                .StartEdit(fun _ -> dispatch (Update.StartEdit key))
-                .Edit(fun _ -> dispatch (Update.CommitEdit key))
+                .Remove(fun _ -> dispatch Update.Entry.Remove)
+                .StartEdit(fun _ -> dispatch Update.Entry.StartEdit)
                 .Doc()
 
     module TodoList =
 
         let Render dispatch (state: View<Model.TodoList>) =
             MasterTemplate()
-                .TODOs(V(state.V.Todos).DocSeqCached(Model.TodoEntry.Key, TodoEntry.Render dispatch))
+                .TODOs(V(state.V.Todos).DocSeqCached(Model.TodoEntry.Key, fun key todo ->
+                    let entryDispatch msg = dispatch (Update.EntryMessage (key, msg))
+                    TodoEntry.Render entryDispatch todo
+                ))
                 .ClearCompleted(fun _ -> dispatch Update.ClearCompleted)
                 .IsCompleted(
                     Var.Make
@@ -189,7 +217,7 @@ module Render =
                 )
                 .Task(
                     Var.Make
-                        (V(state.V.NewTask))
+                        (V state.V.NewTask)
                         (fun text -> dispatch (Update.EditNewTask text))
                 )
                 .Edit(fun e ->
