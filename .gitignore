@@ -3,3 +3,4 @@ bin/
 obj/
 *.user
 wwwroot/Content/
+node_modules/

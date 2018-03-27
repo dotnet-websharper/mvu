@@ -12,43 +12,95 @@ open WebSharper.UI.Notation
 //// Library additions
 
 /// The Model-View-Update-like system
-module MVU =
+module App =
 
-    type Dispatch<'Update> = 'Update -> unit
+    type Dispatch<'Message> = 'Message -> unit
 
-    let private run var view dispatch render =
-        let dispatch msg = Var.Update var (dispatch msg)
-        render dispatch view
+    type App<'Message, 'Model, 'Rendered> =
+        internal {
+            Init : unit -> unit
+            Var : Var<'Model>
+            View : View<'Model>
+            Update : 'Message -> 'Model -> 'Model
+            Render : Dispatch<'Message> -> View<'Model> -> 'Rendered
+        }
 
-    let Run (initModel: 'Model)
-            (dispatch: 'Update -> 'Model -> 'Model)
-            (render: Dispatch<'Update> -> View<'Model> -> 'Rendered) =
+    let Create (initModel: 'Model)
+            (update: 'Message -> 'Model -> 'Model)
+            (render: Dispatch<'Message> -> View<'Model> -> 'Rendered) =
         let var = Var.Create initModel
-        run var var.View dispatch render
+        {
+            Init = ignore
+            Var = var
+            View = var.View
+            Update = update
+            Render = render
+        }
 
     // Inline needed because of the generic macro on Serializer.Typed
     [<Inline>]
-    let RunWithLocalStorage
-            (storageKey: string)
-            (defaultModel: 'Model)
-            (dispatch: 'Update -> 'Model -> 'Model)
-            (render: Dispatch<'Update> -> View<'Model> -> 'Rendered) =
+    let WithLocalStorage (key: string) (app: App<_, 'Model, _>) =
         let serializer = Serializer.Typed<'Model>
-        let init =
-            match JS.Window.LocalStorage.GetItem(storageKey) with
-            | null -> defaultModel
-            | v -> 
-                try serializer.Decode (JSON.Parse v)
-                with exn ->
-                    Console.Error("Error deserializing state from local storage", exn)
-                    defaultModel
-        let var = Var.Create init
+        match JS.Window.LocalStorage.GetItem(key) with
+        | null -> ()
+        | v -> 
+            try app.Var.Set <| serializer.Decode (JSON.Parse v)
+            with exn ->
+                Console.Error("Error deserializing state from local storage", exn)
         let view =
-            var.View.Map(fun v ->
-                JS.Window.LocalStorage.SetItem(storageKey, JSON.Stringify (serializer.Encode v))
+            app.View.Map(fun v ->
+                JS.Window.LocalStorage.SetItem(key, JSON.Stringify (serializer.Encode v))
                 v
             )
-        run var view dispatch render
+        { app with View = view }
+
+    let Run (app: App<_, _, _>) =
+        let dispatch msg = Var.Update app.Var (app.Update msg)
+        app.Render dispatch app.View
+
+    let private WithRemoteDev'
+            (msgSerializer: Serializer<'Message>)
+            (modelSerializer: Serializer<'Model>)
+            (options: RemoteDev.Options)
+            (app: App<'Message, 'Model, _>) =
+        let rdev = RemoteDev.ConnectViaExtension(options)
+        // Not sure why this is necessary :/
+        let decode (m: obj) =
+            match m with
+            | :? string as s -> modelSerializer.Decode (JSON.Parse s)
+            | m -> modelSerializer.Decode m
+        rdev.subscribe(fun msg ->
+            if msg.``type`` = RemoteDev.MsgTypes.Dispatch then
+                match msg.payload.``type`` with
+                | RemoteDev.PayloadTypes.JumpToAction
+                | RemoteDev.PayloadTypes.JumpToState ->
+                    let state = decode (RemoteDev.ExtractState msg)
+                    app.Var.Set state
+                | RemoteDev.PayloadTypes.ImportState ->
+                    let state = msg.payload.nextLiftedState.computedStates |> Array.last
+                    let state = decode state?state
+                    app.Var.Set state
+                    rdev.send(null, msg.payload.nextLiftedState)
+                | _ -> ()
+        )
+        |> ignore
+        let update msg model =
+            let newModel = app.Update msg model
+            rdev.send(
+                msgSerializer.Encode msg,
+                modelSerializer.Encode newModel
+            )
+            newModel
+        let init() =
+            app.Init()
+            app.View |> View.Get (fun st ->
+                rdev.init(modelSerializer.Encode st)
+            )
+        { app with Init = init; Update = update }
+
+    [<Inline>]
+    let WithRemoteDev options (app: App<'Message, 'Model, _>) =
+        WithRemoteDev' Serializer.Typed<'Message> Serializer.Typed<'Model> options app
 
 module Var =
 
@@ -100,6 +152,12 @@ module Model =
             Todos : list<TodoEntry>
         }
 
+        static member Empty =
+            {
+                NewTask = ""
+                Todos = [] 
+            }
+
 /// Dummy implementation of a hypothetical RPC server that would save entries in a database.
 module Server =
 
@@ -127,15 +185,16 @@ module Update =
 
     module Entry =
 
+        [<NamedUnionCases "type">]
         type Message =
             | Remove
             | StartEdit
-            | Edit of string
+            | Edit of text: string
             | CommitEdit
             | CancelEdit
-            | SetCompleted of bool
+            | SetCompleted of completed: bool
 
-        let Dispatch key msg (model: Model.TodoList) =
+        let Update key msg (model: Model.TodoList) =
             match msg with
             | Remove ->
                 model |> updateAllEntries (List.filter (fun t -> t.Id <> key))
@@ -159,28 +218,29 @@ module Update =
             | SetCompleted value ->
                 model |> updateEntry key (fun t -> { t with IsCompleted = value })
 
+    [<NamedUnionCases "type">]
     type Message =
-        | EditNewTask of string
+        | EditNewTask of text: string
         | AddEntry
         | ClearCompleted
-        | SetAllCompleted of bool
-        | EntryMessage of Key * Entry.Message
+        | SetAllCompleted of completed: bool
+        | EntryMessage of key: Key * message: Entry.Message
 
-    let Dispatch msg (model: Model.TodoList) =
+    let Update msg (model: Model.TodoList) =
         match msg with
         | EditNewTask value ->
             { model with NewTask = value }
         | AddEntry ->
             { model with
                 NewTask = ""
-                Todos = Model.TodoEntry.New model.NewTask :: model.Todos
+                Todos = model.Todos @ [Model.TodoEntry.New model.NewTask]
             }
         | ClearCompleted ->
             model |> updateAllEntries (List.filter (fun t -> not t.IsCompleted))
         | SetAllCompleted c ->
             model |> updateAllEntries (List.map (fun t -> { t with IsCompleted = c }))
         | EntryMessage (key, msg) ->
-            model |> Entry.Dispatch key msg
+            model |> Entry.Update key msg
 
 module Render =
 
@@ -259,10 +319,7 @@ module Render =
 
 [<SPAEntryPoint>]
 let Main () =
-    let defaultState : Model.TodoList = 
-        {
-            NewTask = ""
-            Todos = [] 
-        }
-    //MVU.Run defaultState Update.Dispatch Render.TodoList.Render
-    MVU.RunWithLocalStorage "todolist" defaultState Update.Dispatch Render.TodoList.Render
+    App.Create Model.TodoList.Empty Update.Update Render.TodoList.Render
+    |> App.WithLocalStorage "todolist"
+    |> App.WithRemoteDev (RemoteDev.Options(hostname = "localhost", port = 8000))
+    |> App.Run

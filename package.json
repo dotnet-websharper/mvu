@@ -1,0 +1,13 @@
+{
+  "name": "todomvc.my",
+  "version": "1.0.0",
+  "description": "WebSharper Architecture TodoMvc",
+  "private": true,
+  "license": "MIT",
+  "devDependencies": {
+    "remotedev": "^0.2.7",
+    "remotedev-server": "^0.2.4",
+    "webpack": "^4.3.0",
+    "webpack-cli": "^2.0.13"
+  }
+}
