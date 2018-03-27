@@ -16,12 +16,39 @@ module MVU =
 
     type Dispatch<'Update> = 'Update -> unit
 
+    let private run var view dispatch render =
+        let dispatch msg = Var.Update var (dispatch msg)
+        render dispatch view
+
     let Run (initModel: 'Model)
             (dispatch: 'Update -> 'Model -> 'Model)
             (render: Dispatch<'Update> -> View<'Model> -> 'Rendered) =
         let var = Var.Create initModel
-        let dispatch msg = var.Update(dispatch msg)
-        render dispatch var.View
+        run var var.View dispatch render
+
+    // Inline needed because of the generic macro on Serializer.Typed
+    [<Inline>]
+    let RunWithLocalStorage
+            (storageKey: string)
+            (defaultModel: 'Model)
+            (dispatch: 'Update -> 'Model -> 'Model)
+            (render: Dispatch<'Update> -> View<'Model> -> 'Rendered) =
+        let serializer = Serializer.Typed<'Model>
+        let init =
+            match JS.Window.LocalStorage.GetItem(storageKey) with
+            | null -> defaultModel
+            | v -> 
+                try serializer.Decode (JSON.Parse v)
+                with exn ->
+                    Console.Error("Error deserializing state from local storage", exn)
+                    defaultModel
+        let var = Var.Create init
+        let view =
+            var.View.Map(fun v ->
+                JS.Window.LocalStorage.SetItem(storageKey, JSON.Stringify (serializer.Encode v))
+                v
+            )
+        run var view dispatch render
 
 module Var =
 
@@ -232,9 +259,10 @@ module Render =
 
 [<SPAEntryPoint>]
 let Main () =
-    let initState : Model.TodoList = 
+    let defaultState : Model.TodoList = 
         {
             NewTask = ""
             Todos = [] 
         }
-    MVU.Run initState Update.Dispatch Render.TodoList.Render
+    //MVU.Run defaultState Update.Dispatch Render.TodoList.Render
+    MVU.RunWithLocalStorage "todolist" defaultState Update.Dispatch Render.TodoList.Render
