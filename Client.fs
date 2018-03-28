@@ -313,6 +313,11 @@ module Render =
                         dispatch Update.AddEntry
                         e.Event.PreventDefault()
                 )
+                .ItemsLeft(
+                    V(match List.length state.V.Todos with
+                        | 1 -> "1 item left"
+                        | n -> string n + " items left")
+                )
                 .CssFilterAll(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.All))
                 .CssFilterActive(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.Active))
                 .CssFilterCompleted(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.Completed))
