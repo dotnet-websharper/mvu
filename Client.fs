@@ -9,31 +9,6 @@ open WebSharper.UI.Client
 open WebSharper.UI.Templating
 open WebSharper.UI.Notation
 
-//// Library additions
-
-module Var =
-
-    /// Create a Var from a View and a setter function.
-    let Make (view: View<'T>) (set: 'T -> unit) =
-        let id = "test"
-        let mutable current = As null
-        let view = view.Map(fun x -> current <- x; x)
-        { new Var<'T>() with
-            member this.View = view
-            member this.Id = id
-            member this.Set(x) = set x
-            member this.UpdateMaybe(f) =
-                view |> View.Get (fun x ->
-                    match f x with
-                    | None -> ()
-                    | Some x -> set x
-                )
-            member this.Update(f) =
-                view |> View.Get (f >> set)
-            member this.SetFinal(x) = set x
-            member this.Get() = current
-        }
-
 module Model =
 
     type TodoEntry =
@@ -102,9 +77,7 @@ module Update =
                 model |> updateAllEntries (List.filter (fun t -> t.Id <> key))
             | StartEdit ->
                 model |> updateEntry key (fun t ->
-                    { t with
-                        Editing = t.Editing |> Option.orElse (Some t.Task)
-                    }
+                    { t with Editing = t.Editing |> Option.orElse (Some t.Task) }
                 )
             | Edit value ->
                 model |> updateEntry key (fun t -> { t with Editing = Some value })
@@ -166,9 +139,8 @@ module Render =
                     ]
                 )
                 .EditingTask(
-                    Var.Make
-                        (V(todo.V.Editing |> Option.defaultValue ""))
-                        (fun text -> dispatch (Update.Entry.Edit text))
+                    V(todo.V.Editing |> Option.defaultValue ""),
+                    fun text -> dispatch (Update.Entry.Edit text)
                 )
                 .EditBlur(fun _ -> dispatch Update.Entry.CommitEdit)
                 .EditKeyup(fun e ->
@@ -178,9 +150,8 @@ module Render =
                     | _ -> ()
                 )
                 .IsCompleted(
-                    Var.Make
-                        (V todo.V.IsCompleted)
-                        (fun x -> dispatch (Update.Entry.SetCompleted x))
+                    V todo.V.IsCompleted,
+                    fun x -> dispatch (Update.Entry.SetCompleted x)
                 )
                 .Remove(fun _ -> dispatch Update.Entry.Remove)
                 .StartEdit(fun _ -> dispatch Update.Entry.StartEdit)
@@ -196,18 +167,14 @@ module Render =
                 ))
                 .ClearCompleted(fun _ -> dispatch Update.ClearCompleted)
                 .IsCompleted(
-                    Var.Make
-                        (V(
-                            let todos = state.V.Todos
-                            not (List.isEmpty todos)
-                            && todos |> List.forall (fun t -> t.IsCompleted)
-                        ))
-                        (fun c -> dispatch (Update.SetAllCompleted c))
+                    V(match state.V.Todos with
+                        | [] -> false
+                        | l -> l |> List.forall (fun t -> t.IsCompleted)),
+                    fun c -> dispatch (Update.SetAllCompleted c)
                 )
                 .Task(
-                    Var.Make
-                        (V state.V.NewTask)
-                        (fun text -> dispatch (Update.EditNewTask text))
+                    V state.V.NewTask,
+                    fun text -> dispatch (Update.EditNewTask text)
                 )
                 .Edit(fun e ->
                     if e.Event.Key = "Enter" then
