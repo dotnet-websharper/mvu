@@ -56,6 +56,7 @@ module App =
 
     let Run (app: App<_, _, _>) =
         let dispatch msg = Var.Update app.Var (app.Update msg)
+        app.Init()
         app.Render dispatch app.View
 
     let private WithRemoteDev'
