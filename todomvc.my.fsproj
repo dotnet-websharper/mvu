@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
     <PackageReference Include="WebSharper" Version="4.2.8.255" />    
     <PackageReference Include="WebSharper.FSharp" Version="4.2.8.255" />
-    <PackageReference Include="WebSharper.UI" Version="4.2.4.112" />
+    <PackageReference Include="WebSharper.UI" Version="4.2.4.113" />
   </ItemGroup>
 
 </Project>

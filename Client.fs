@@ -127,16 +127,14 @@ module Render =
             MasterTemplate.TODO()
                 .Label(text todo.V.Task)
                 .CssAttrs(
-                    [
-                        Attr.ClassPred "completed" todo.V.IsCompleted
-                        Attr.ClassPred "editing" todo.V.Editing.IsSome
-                        Attr.ClassPred "hidden" (
-                            match Route.location.V, todo.V.IsCompleted with
-                            | Route.Completed, false -> true
-                            | Route.Active, true -> true
-                            | _ -> false
-                        )
-                    ]
+                    Attr.ClassPred "completed" todo.V.IsCompleted,
+                    Attr.ClassPred "editing" todo.V.Editing.IsSome,
+                    Attr.ClassPred "hidden" (
+                        match Route.location.V, todo.V.IsCompleted with
+                        | Route.Completed, false -> true
+                        | Route.Active, true -> true
+                        | _ -> false
+                    )
                 )
                 .EditingTask(
                     V(todo.V.Editing |> Option.defaultValue ""),
