@@ -121,77 +121,73 @@ module Render =
 
     type MasterTemplate = Template<"wwwroot/index.html", ClientLoad.FromDocument>
 
-    module TodoEntry =
-        
-        let Render dispatch (todo: View<Model.TodoEntry>) =
-            MasterTemplate.TODO()
-                .Label(text todo.V.Task)
-                .CssAttrs(
-                    Attr.ClassPred "completed" todo.V.IsCompleted,
-                    Attr.ClassPred "editing" todo.V.Editing.IsSome,
-                    Attr.ClassPred "hidden" (
-                        match Route.location.V, todo.V.IsCompleted with
-                        | Route.Completed, false -> true
-                        | Route.Active, true -> true
-                        | _ -> false
-                    )
+    let TodoEntry dispatch (todo: View<Model.TodoEntry>) =
+        MasterTemplate.TODO()
+            .Label(text todo.V.Task)
+            .CssAttrs(
+                Attr.ClassPred "completed" todo.V.IsCompleted,
+                Attr.ClassPred "editing" todo.V.Editing.IsSome,
+                Attr.ClassPred "hidden" (
+                    match Route.location.V, todo.V.IsCompleted with
+                    | Route.Completed, false -> true
+                    | Route.Active, true -> true
+                    | _ -> false
                 )
-                .EditingTask(
-                    V(todo.V.Editing |> Option.defaultValue ""),
-                    fun text -> dispatch (Update.Entry.Edit text)
-                )
-                .EditBlur(fun _ -> dispatch Update.Entry.CommitEdit)
-                .EditKeyup(fun e ->
-                    match e.Event.Key with
-                    | "Enter" -> dispatch Update.Entry.CommitEdit
-                    | "Escape" -> dispatch Update.Entry.CancelEdit
-                    | _ -> ()
-                )
-                .IsCompleted(
-                    V todo.V.IsCompleted,
-                    fun x -> dispatch (Update.Entry.SetCompleted x)
-                )
-                .Remove(fun _ -> dispatch Update.Entry.Remove)
-                .StartEdit(fun _ -> dispatch Update.Entry.StartEdit)
-                .Doc()
+            )
+            .EditingTask(
+                V(todo.V.Editing |> Option.defaultValue ""),
+                fun text -> dispatch (Update.Entry.Edit text)
+            )
+            .EditBlur(fun _ -> dispatch Update.Entry.CommitEdit)
+            .EditKeyup(fun e ->
+                match e.Event.Key with
+                | "Enter" -> dispatch Update.Entry.CommitEdit
+                | "Escape" -> dispatch Update.Entry.CancelEdit
+                | _ -> ()
+            )
+            .IsCompleted(
+                V todo.V.IsCompleted,
+                fun x -> dispatch (Update.Entry.SetCompleted x)
+            )
+            .Remove(fun _ -> dispatch Update.Entry.Remove)
+            .StartEdit(fun _ -> dispatch Update.Entry.StartEdit)
+            .Doc()
 
-    module TodoList =
-
-        let Render dispatch (state: View<Model.TodoList>) =
-            MasterTemplate()
-                .TODOs(V(state.V.Todos).DocSeqCached(Model.TodoEntry.Key, fun key todo ->
-                    let entryDispatch msg = dispatch (Update.EntryMessage (key, msg))
-                    TodoEntry.Render entryDispatch todo
-                ))
-                .ClearCompleted(fun _ -> dispatch Update.ClearCompleted)
-                .IsCompleted(
-                    V(match state.V.Todos with
-                        | [] -> false
-                        | l -> l |> List.forall (fun t -> t.IsCompleted)),
-                    fun c -> dispatch (Update.SetAllCompleted c)
-                )
-                .Task(
-                    V state.V.NewTask,
-                    fun text -> dispatch (Update.EditNewTask text)
-                )
-                .Edit(fun e ->
-                    if e.Event.Key = "Enter" then
-                        dispatch Update.AddEntry
-                        e.Event.PreventDefault()
-                )
-                .ItemsLeft(
-                    V(match List.length state.V.Todos with
-                        | 1 -> "1 item left"
-                        | n -> string n + " items left")
-                )
-                .CssFilterAll(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.All))
-                .CssFilterActive(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.Active))
-                .CssFilterCompleted(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.Completed))
-                .Bind()
+    let TodoList dispatch (state: View<Model.TodoList>) =
+        MasterTemplate()
+            .TODOs(V(state.V.Todos).DocSeqCached(Model.TodoEntry.Key, fun key todo ->
+                let entryDispatch msg = dispatch (Update.EntryMessage (key, msg))
+                TodoEntry entryDispatch todo
+            ))
+            .ClearCompleted(fun _ -> dispatch Update.ClearCompleted)
+            .IsCompleted(
+                V(match state.V.Todos with
+                    | [] -> false
+                    | l -> l |> List.forall (fun t -> t.IsCompleted)),
+                fun c -> dispatch (Update.SetAllCompleted c)
+            )
+            .Task(
+                V state.V.NewTask,
+                fun text -> dispatch (Update.EditNewTask text)
+            )
+            .Edit(fun e ->
+                if e.Event.Key = "Enter" then
+                    dispatch Update.AddEntry
+                    e.Event.PreventDefault()
+            )
+            .ItemsLeft(
+                V(match List.length state.V.Todos with
+                    | 1 -> "1 item left"
+                    | n -> string n + " items left")
+            )
+            .CssFilterAll(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.All))
+            .CssFilterActive(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.Active))
+            .CssFilterCompleted(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.Completed))
+            .Bind()
 
 [<SPAEntryPoint>]
 let Main () =
-    App.Create Model.TodoList.Empty Update.Update Render.TodoList.Render
+    App.Create Model.TodoList.Empty Update.Update Render.TodoList
     |> App.WithLocalStorage "todolist"
     |> App.WithRemoteDev (RemoteDev.Options(hostname = "localhost", port = 8000))
     |> App.Run
