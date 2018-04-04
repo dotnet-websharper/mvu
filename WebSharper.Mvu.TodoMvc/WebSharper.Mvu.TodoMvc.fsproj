@@ -8,6 +8,7 @@
     <Compile Include="Client.fs" />
     <Compile Include="Startup.fs" />
     <Compile Include="Program.fs" />
+    <None Include="wsconfig.json" />
   </ItemGroup>
 
   <ItemGroup>

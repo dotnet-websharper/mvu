@@ -1,7 +1,7 @@
 {
-  "name": "todomvc.my",
+  "name": "websharper.mvu",
   "version": "1.0.0",
-  "description": "WebSharper Architecture TodoMvc",
+  "description": "WebSharper MVU Architecture with TodoMvc app",
   "private": true,
   "license": "MIT",
   "scripts": {
