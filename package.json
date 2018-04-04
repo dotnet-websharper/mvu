@@ -4,6 +4,10 @@
   "description": "WebSharper Architecture TodoMvc",
   "private": true,
   "license": "MIT",
+  "scripts": {
+    "dev": "webpack-dev-server --mode development",
+    "remotedev": "remotedev"
+  },
   "devDependencies": {
     "remotedev": "^0.2.7",
     "remotedev-server": "^0.2.4",

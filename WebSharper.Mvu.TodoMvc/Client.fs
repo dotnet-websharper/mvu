@@ -7,13 +7,15 @@ open WebSharper.UI
 open WebSharper.UI.Html
 open WebSharper.UI.Client
 open WebSharper.UI.Templating
-open WebSharper.UI.Notation
 open WebSharper.Mvu
 
+/// This module defines the types of our application's model.
 module Model =
 
+    /// The unique identifier of a Todo entry.
     type Key = int
 
+    /// The model for a Todo entry.
     type TodoEntry =
         {
             Id : Key
@@ -22,9 +24,9 @@ module Model =
             Editing : option<string>
         }
 
-        static member Key e = e.Id
+        static member Key (e: TodoEntry) = e.Id
 
-        static member New key task =
+        static member New (key: Key) (task: string) =
             {
                 Id = key
                 Task = task
@@ -32,6 +34,7 @@ module Model =
                 Editing = None
             }
 
+    /// The model for the full TodoList application.
     type TodoList =
         {
             NewTask : string
@@ -46,19 +49,28 @@ module Model =
                 NextKey = 0
             }
 
+
+/// This module defines the URL routing of our application.
 module Route =
     open WebSharper.Sitelets
 
+    /// Our application has three URL endpoints.
     type EndPoint =
         | [<EndPoint "/">] All
         | [<EndPoint "/active">] Active
         | [<EndPoint "/completed">] Completed
 
+    /// The router defines the mapping between the URL and the route value.
     let router = Router.Infer<EndPoint>()
+
+    /// The installed router is a Var whose value is synchronized with the current URL.
     let location = Router.InstallHash EndPoint.All router
 
+
+/// This module defines the updates that can be applied to the application's model.
 module Update =
 
+    /// Updates for a specific Todo entry.
     module Entry =
 
         [<NamedUnionCases "type">]
@@ -70,7 +82,9 @@ module Update =
             | CancelEdit
             | SetCompleted of completed: bool
 
-        let Update msg (t: Model.TodoEntry) : option<Model.TodoEntry> =
+        /// Defines how a given Todo entry is updated based on a message.
+        /// Returns Some to update the entry, or None to delete it.
+        let Update (msg: Message) (t: Model.TodoEntry) : option<Model.TodoEntry> =
             match msg with
             | Remove ->
                 None
@@ -87,10 +101,12 @@ module Update =
             | SetCompleted value ->
                 Some { t with IsCompleted = value }
 
-    let private updateAllEntries f (model: Model.TodoList) =
+    /// Helper function to apply an update to all entries of the list.
+    let private updateAllEntries (f: list<Model.TodoEntry> -> list<Model.TodoEntry>) (model: Model.TodoList) =
         { model with Todos = f model.Todos }
 
-    let private updateEntry key f (model: Model.TodoList) =
+    /// Helper function to apply an update to a specific entry of the list.
+    let private updateEntry (key: Model.Key) (f: Model.TodoEntry -> option<Model.TodoEntry>) (model: Model.TodoList) =
         model |> updateAllEntries (List.choose (fun t -> if t.Id = key then f t else Some t))
 
     [<NamedUnionCases "type">]
@@ -101,7 +117,8 @@ module Update =
         | SetAllCompleted of completed: bool
         | EntryMessage of key: Model.Key * message: Entry.Message
 
-    let Update msg (model: Model.TodoList) =
+    /// Defines how the Todo list is updated based on a message.
+    let Update (msg: Message) (model: Model.TodoList) =
         match msg with
         | EditNewTask value ->
             { model with NewTask = value }
@@ -117,11 +134,15 @@ module Update =
         | EntryMessage (key, msg) ->
             model |> updateEntry key (Entry.Update msg)
 
+
+/// This module defines the rendering of our application.
 module Render =
 
+    /// Parses the index.html file and provides types to fill it with dynamic content.
     type MasterTemplate = Template<"wwwroot/index.html", ClientLoad.FromDocument>
 
-    let TodoEntry dispatch (todo: View<Model.TodoEntry>) =
+    /// Render a given Todo entry.
+    let TodoEntry (dispatch: Update.Entry.Message -> unit) (todo: View<Model.TodoEntry>) =
         MasterTemplate.TODO()
             .Label(text todo.V.Task)
             .CssAttrs(
@@ -153,7 +174,8 @@ module Render =
             .StartEdit(fun _ -> dispatch Update.Entry.StartEdit)
             .Doc()
 
-    let TodoList dispatch (state: View<Model.TodoList>) =
+    /// Render the whole application.
+    let TodoList (dispatch: Update.Message -> unit) (state: View<Model.TodoList>) =
         MasterTemplate()
             .TODOs(V(state.V.Todos).DocSeqCached(Model.TodoEntry.Key, fun key todo ->
                 let entryDispatch msg = dispatch (Update.EntryMessage (key, msg))
@@ -185,6 +207,7 @@ module Render =
             .CssFilterCompleted(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.Completed))
             .Bind()
 
+/// The entry point of our application, called on page load.
 [<SPAEntryPoint>]
 let Main () =
     App.Create Model.TodoList.Empty Update.Update Render.TodoList
