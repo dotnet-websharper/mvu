@@ -31,10 +31,10 @@ module App =
             Render = render
         }
 
-    // Inline needed because of the generic macro on Serializer.Typed
-    [<Inline>]
-    let WithLocalStorage (key: string) (app: App<_, 'Model, _>) =
-        let serializer = Serializer.Typed<'Model>
+    let private WithLocalStorage'
+            (serializer: Serializer<'Model>)
+            (key: string)
+            (app: App<_, 'Model, _>) =
         let init() =
             app.Init()
             match JS.Window.LocalStorage.GetItem(key) with
@@ -49,6 +49,10 @@ module App =
                 v
             )
         { app with View = view; Init = init }
+
+    [<Inline>]
+    let WithLocalStorage key (app: App<_, 'Model, _>) =
+        WithLocalStorage' Serializer.Typed<'Model> key app
 
     let Run (app: App<_, _, _>) =
         let dispatch msg = Var.Update app.Var (app.Update msg)
