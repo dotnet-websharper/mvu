@@ -58,12 +58,6 @@ module Route =
 
 module Update =
 
-    let private updateAllEntries f (model: Model.TodoList) =
-        { model with Todos = f model.Todos }
-
-    let private updateEntry key f (model: Model.TodoList) =
-        model |> updateAllEntries (List.map (fun t -> if t.Id = key then f t else t))
-
     module Entry =
 
         [<NamedUnionCases "type">]
@@ -75,27 +69,28 @@ module Update =
             | CancelEdit
             | SetCompleted of completed: bool
 
-        let Update key msg (model: Model.TodoList) =
+        let Update msg (t: Model.TodoEntry) : option<Model.TodoEntry> =
             match msg with
             | Remove ->
-                model |> updateAllEntries (List.filter (fun t -> t.Id <> key))
+                None
             | StartEdit ->
-                model |> updateEntry key (fun t ->
-                    { t with Editing = t.Editing |> Option.orElse (Some t.Task) }
-                )
+                Some { t with Editing = t.Editing |> Option.orElse (Some t.Task) }
             | Edit value ->
-                model |> updateEntry key (fun t -> { t with Editing = Some value })
+                Some { t with Editing = Some value }
             | CommitEdit ->
-                model |> updateEntry key (fun t ->
-                    { t with
+                Some { t with
                         Task = t.Editing |> Option.defaultValue t.Task
-                        Editing = None
-                    }
-                )
+                        Editing = None }
             | CancelEdit ->
-                model |> updateEntry key (fun t -> { t with Editing = None })
+                Some { t with Editing = None }
             | SetCompleted value ->
-                model |> updateEntry key (fun t -> { t with IsCompleted = value })
+                Some { t with IsCompleted = value }
+
+    let private updateAllEntries f (model: Model.TodoList) =
+        { model with Todos = f model.Todos }
+
+    let private updateEntry key f (model: Model.TodoList) =
+        model |> updateAllEntries (List.choose (fun t -> if t.Id = key then f t else Some t))
 
     [<NamedUnionCases "type">]
     type Message =
@@ -113,14 +108,13 @@ module Update =
             { model with
                 NewTask = ""
                 Todos = model.Todos @ [Model.TodoEntry.New model.NextKey model.NewTask]
-                NextKey = model.NextKey + 1
-            }
+                NextKey = model.NextKey + 1 }
         | ClearCompleted ->
             model |> updateAllEntries (List.filter (fun t -> not t.IsCompleted))
         | SetAllCompleted c ->
             model |> updateAllEntries (List.map (fun t -> { t with IsCompleted = c }))
         | EntryMessage (key, msg) ->
-            model |> Entry.Update key msg
+            model |> updateEntry key (Entry.Update msg)
 
 module Render =
 
