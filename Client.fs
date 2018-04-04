@@ -11,6 +11,8 @@ open WebSharper.UI.Notation
 
 module Model =
 
+    type Key = int
+
     type TodoEntry =
         {
             Id : Key
@@ -21,9 +23,9 @@ module Model =
 
         static member Key e = e.Id
 
-        static member New task =
+        static member New key task =
             {
-                Id = Key.Fresh()
+                Id = key
                 Task = task
                 IsCompleted = false
                 Editing = None
@@ -33,12 +35,14 @@ module Model =
         {
             NewTask : string
             Todos : list<TodoEntry>
+            NextKey : Key
         }
 
         static member Empty =
             {
                 NewTask = ""
-                Todos = [] 
+                Todos = []
+                NextKey = 0
             }
 
 module Route =
@@ -99,7 +103,7 @@ module Update =
         | AddEntry
         | ClearCompleted
         | SetAllCompleted of completed: bool
-        | EntryMessage of key: Key * message: Entry.Message
+        | EntryMessage of key: Model.Key * message: Entry.Message
 
     let Update msg (model: Model.TodoList) =
         match msg with
@@ -108,7 +112,8 @@ module Update =
         | AddEntry ->
             { model with
                 NewTask = ""
-                Todos = model.Todos @ [Model.TodoEntry.New model.NewTask]
+                Todos = model.Todos @ [Model.TodoEntry.New model.NextKey model.NewTask]
+                NextKey = model.NextKey + 1
             }
         | ClearCompleted ->
             model |> updateAllEntries (List.filter (fun t -> not t.IsCompleted))
