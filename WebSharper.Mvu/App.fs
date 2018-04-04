@@ -1,4 +1,4 @@
-﻿namespace todomvc.my
+﻿namespace WebSharper.Mvu
 
 open WebSharper
 open WebSharper.JavaScript

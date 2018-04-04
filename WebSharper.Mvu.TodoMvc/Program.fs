@@ -1,4 +1,4 @@
-namespace todomvc.my
+namespace TodoMvc
 
 open System
 open System.Collections.Generic

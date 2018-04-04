@@ -1,5 +1,6 @@
 ﻿[<WebSharper.JavaScript>]
-module todomvc.my.RemoteDev
+[<WebSharper.Require(typeof<WebSharper.Mvu.Resources.RemoteDevJs>)>]
+module WebSharper.RemoteDev
 
 open WebSharper
 open WebSharper.JavaScript

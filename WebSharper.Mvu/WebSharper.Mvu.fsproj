@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="dist/remotedev.js" />
+    <Compile Include="Resources.fs" />
+    <Compile Include="RemoteDev.fs" />
+    <Compile Include="App.fs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WebSharper" Version="4.2.8.255" />    
+    <PackageReference Include="WebSharper.FSharp" Version="4.2.8.255" />
+    <PackageReference Include="WebSharper.UI" Version="4.2.4.113" />
+  </ItemGroup>
+
+</Project>

@@ -1,5 +1,5 @@
 [<WebSharper.JavaScript>]
-module todomvc.my.Client
+module TodoMvc.Client
 
 open WebSharper
 open WebSharper.JavaScript
@@ -8,6 +8,7 @@ open WebSharper.UI.Html
 open WebSharper.UI.Client
 open WebSharper.UI.Templating
 open WebSharper.UI.Notation
+open WebSharper.Mvu
 
 module Model =
 
