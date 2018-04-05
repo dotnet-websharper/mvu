@@ -4,12 +4,14 @@ open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI
 
-/// The Model-View-Update-like system
+/// Bring together the Model-View-Update system and augment it with extra capabilities.
 [<JavaScript>]
 module App =
 
+    /// A function that dispatches a message to the update function.
     type Dispatch<'Message> = 'Message -> unit
 
+    /// An MVU application.
     type App<'Message, 'Model, 'Rendered> =
         internal {
             Init : unit -> unit
@@ -19,6 +21,13 @@ module App =
             Render : Dispatch<'Message> -> View<'Model> -> 'Rendered
         }
 
+    /// <summary>
+    /// Create an MVU application based on an initial model, an update function
+    /// and a render function.
+    /// </summary>
+    /// <param name="initModel">The initial value of the model.</param>
+    /// <param name="update">Computes the new model on every message.</param>
+    /// <param name="render">Renders the application based on a reactive view of the model.</param>
     let Create (initModel: 'Model)
             (update: 'Message -> 'Model -> 'Model)
             (render: Dispatch<'Message> -> View<'Model> -> 'Rendered) =
@@ -50,10 +59,19 @@ module App =
             )
         { app with View = view; Init = init }
 
+    /// <summary>
+    /// Add Local Storage capability to the application.
+    /// On startup, load the model from local storage at the given key,
+    /// or keep the initial model if there is nothing stored yet.
+    /// On every update, store the model in local storage.
+    /// </summary>
+    /// <param name="key">The local storage key</param>
+    /// <param name="app">The application</param>
     [<Inline>]
     let WithLocalStorage key (app: App<_, 'Model, _>) =
         WithLocalStorage' Serializer.Typed<'Model> key app
 
+    /// Run the application.
     let Run (app: App<_, _, _>) =
         let dispatch msg = Var.Update app.Var (app.Update msg)
         app.Init()
@@ -99,6 +117,12 @@ module App =
             )
         { app with Init = init; Update = update }
 
+    /// <summary>
+    /// Add RemoteDev capability to the application.
+    /// Allows inspecting the model's history and time-travel debugging.
+    /// </summary>
+    /// <param name="options">The RemoteDev options</param>
+    /// <param name="app">The application</param>
     [<Inline>]
     let WithRemoteDev options (app: App<'Message, 'Model, _>) =
         WithRemoteDev' Serializer.Typed<'Message> Serializer.Typed<'Model> options app
