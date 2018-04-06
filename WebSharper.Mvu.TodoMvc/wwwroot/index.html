@@ -27,8 +27,8 @@
         <section class="main">
             <input ws-var="IsCompleted" class="toggle-all" type="checkbox">
             <label for="toggle-all">Mark all as complete</label>
-            <ul ws-hole="TODOs" class="todo-list">
-                <li ws-template="TODO" ws-attr="CssAttrs">
+            <ul ws-hole="Entries" class="todo-list">
+                <li ws-template="Entry" ws-attr="CssAttrs">
                     <div class="view">
                         <input ws-var="IsCompleted" class="toggle" type="checkbox" />
                         <label ws-hole="Label" ws-ondblclick="StartEdit"></label>

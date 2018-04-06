@@ -58,7 +58,7 @@ The application supports time-travelling debugging using [RemoteDev](https://git
 
 ### Code walkthrough
 
-The whole application is contained in the file [Client.fs](WebSharper.Mvu.TodoMvc/Client.fs). The other F# files in this folder simply provide a server for running with `dotnet`.
+The whole application is contained in the file [TodoMvc.fs](WebSharper.Mvu.TodoMvc/TodoMvc.fs). The other F# files in this folder simply provide a server for running with `dotnet`.
 
 The general structure of a WebSharper.Mvu application should be familiar if you know MVU architectures such as Elm or Redux.
 

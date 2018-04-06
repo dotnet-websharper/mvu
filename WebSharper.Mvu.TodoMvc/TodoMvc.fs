@@ -16,7 +16,7 @@ module Model =
     type Key = int
 
     /// The model for a Todo entry.
-    type TodoEntry =
+    type Entry =
         {
             Id : Key
             Task : string
@@ -24,7 +24,7 @@ module Model =
             Editing : option<string>
         }
 
-        static member Key (e: TodoEntry) = e.Id
+        static member Key (e: Entry) = e.Id
 
         static member New (key: Key) (task: string) =
             {
@@ -38,7 +38,7 @@ module Model =
     type TodoList =
         {
             NewTask : string
-            Todos : list<TodoEntry>
+            Todos : list<Entry>
             NextKey : Key
         }
 
@@ -84,7 +84,7 @@ module Update =
 
         /// Defines how a given Todo entry is updated based on a message.
         /// Returns Some to update the entry, or None to delete it.
-        let Update (msg: Message) (t: Model.TodoEntry) : option<Model.TodoEntry> =
+        let Update (msg: Message) (t: Model.Entry) : option<Model.Entry> =
             match msg with
             | Remove ->
                 None
@@ -102,11 +102,11 @@ module Update =
                 Some { t with IsCompleted = value }
 
     /// Helper function to apply an update to all entries of the list.
-    let private updateAllEntries (f: list<Model.TodoEntry> -> list<Model.TodoEntry>) (model: Model.TodoList) =
+    let private updateAllEntries (f: list<Model.Entry> -> list<Model.Entry>) (model: Model.TodoList) =
         { model with Todos = f model.Todos }
 
     /// Helper function to apply an update to a specific entry of the list.
-    let private updateEntry (key: Model.Key) (f: Model.TodoEntry -> option<Model.TodoEntry>) (model: Model.TodoList) =
+    let private updateEntry (key: Model.Key) (f: Model.Entry -> option<Model.Entry>) (model: Model.TodoList) =
         model |> updateAllEntries (List.choose (fun t -> if t.Id = key then f t else Some t))
 
     [<NamedUnionCases "type">]
@@ -118,14 +118,14 @@ module Update =
         | EntryMessage of key: Model.Key * message: Entry.Message
 
     /// Defines how the Todo list is updated based on a message.
-    let Update (msg: Message) (model: Model.TodoList) =
+    let TodoList (msg: Message) (model: Model.TodoList) =
         match msg with
         | EditNewTask value ->
             { model with NewTask = value }
         | AddEntry ->
             { model with
                 NewTask = ""
-                Todos = model.Todos @ [Model.TodoEntry.New model.NextKey model.NewTask]
+                Todos = model.Todos @ [Model.Entry.New model.NextKey model.NewTask]
                 NextKey = model.NextKey + 1 }
         | ClearCompleted ->
             model |> updateAllEntries (List.filter (fun t -> not t.IsCompleted))
@@ -142,8 +142,8 @@ module Render =
     type MasterTemplate = Template<"wwwroot/index.html", ClientLoad.FromDocument>
 
     /// Render a given Todo entry.
-    let TodoEntry (dispatch: Update.Entry.Message -> unit) (todo: View<Model.TodoEntry>) =
-        MasterTemplate.TODO()
+    let Entry (dispatch: Update.Entry.Message -> unit) (todo: View<Model.Entry>) =
+        MasterTemplate.Entry()
             .Label(text todo.V.Task)
             .CssAttrs(
                 Attr.ClassPred "completed" todo.V.IsCompleted,
@@ -177,9 +177,9 @@ module Render =
     /// Render the whole application.
     let TodoList (dispatch: Update.Message -> unit) (state: View<Model.TodoList>) =
         MasterTemplate()
-            .TODOs(V(state.V.Todos).DocSeqCached(Model.TodoEntry.Key, fun key todo ->
+            .Entries(V(state.V.Todos).DocSeqCached(Model.Entry.Key, fun key todo ->
                 let entryDispatch msg = dispatch (Update.EntryMessage (key, msg))
-                TodoEntry entryDispatch todo
+                Entry entryDispatch todo
             ))
             .ClearCompleted(fun _ -> dispatch Update.ClearCompleted)
             .IsCompleted(
@@ -210,7 +210,7 @@ module Render =
 /// The entry point of our application, called on page load.
 [<SPAEntryPoint>]
 let Main () =
-    App.Create Model.TodoList.Empty Update.Update Render.TodoList
+    App.Create Model.TodoList.Empty Update.TodoList Render.TodoList
     |> App.WithLocalStorage "todolist"
     |> App.WithRemoteDev (RemoteDev.Options(hostname = "localhost", port = 8000))
     |> App.Run
