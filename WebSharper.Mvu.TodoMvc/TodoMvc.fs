@@ -38,14 +38,14 @@ module Model =
     type TodoList =
         {
             NewTask : string
-            Todos : list<Entry>
+            Entries : list<Entry>
             NextKey : Key
         }
 
         static member Empty =
             {
                 NewTask = ""
-                Todos = []
+                Entries = []
                 NextKey = 0
             }
 
@@ -84,30 +84,22 @@ module Update =
 
         /// Defines how a given Todo entry is updated based on a message.
         /// Returns Some to update the entry, or None to delete it.
-        let Update (msg: Message) (t: Model.Entry) : option<Model.Entry> =
+        let Update (msg: Message) (e: Model.Entry) : option<Model.Entry> =
             match msg with
             | Remove ->
                 None
             | StartEdit ->
-                Some { t with Editing = t.Editing |> Option.orElse (Some t.Task) }
+                Some { e with Editing = e.Editing |> Option.orElse (Some e.Task) }
             | Edit value ->
-                Some { t with Editing = Some value }
+                Some { e with Editing = Some value }
             | CommitEdit ->
-                Some { t with
-                        Task = t.Editing |> Option.defaultValue t.Task
+                Some { e with
+                        Task = e.Editing |> Option.defaultValue e.Task
                         Editing = None }
             | CancelEdit ->
-                Some { t with Editing = None }
+                Some { e with Editing = None }
             | SetCompleted value ->
-                Some { t with IsCompleted = value }
-
-    /// Helper function to apply an update to all entries of the list.
-    let private updateAllEntries (f: list<Model.Entry> -> list<Model.Entry>) (model: Model.TodoList) =
-        { model with Todos = f model.Todos }
-
-    /// Helper function to apply an update to a specific entry of the list.
-    let private updateEntry (key: Model.Key) (f: Model.Entry -> option<Model.Entry>) (model: Model.TodoList) =
-        model |> updateAllEntries (List.choose (fun t -> if t.Id = key then f t else Some t))
+                Some { e with IsCompleted = value }
 
     [<NamedUnionCases "type">]
     type Message =
@@ -125,14 +117,16 @@ module Update =
         | AddEntry ->
             { model with
                 NewTask = ""
-                Todos = model.Todos @ [Model.Entry.New model.NextKey model.NewTask]
+                Entries = model.Entries @ [Model.Entry.New model.NextKey model.NewTask]
                 NextKey = model.NextKey + 1 }
         | ClearCompleted ->
-            model |> updateAllEntries (List.filter (fun t -> not t.IsCompleted))
+            { model with Entries = List.filter (fun e -> not e.IsCompleted) model.Entries }
         | SetAllCompleted c ->
-            model |> updateAllEntries (List.map (fun t -> { t with IsCompleted = c }))
+            { model with Entries = List.map (fun e -> { e with IsCompleted = c }) model.Entries }
         | EntryMessage (key, msg) ->
-            model |> updateEntry key (Entry.Update msg)
+            let updateEntry (e: Model.Entry) =
+                if e.Id = key then Entry.Update msg e else Some e
+            { model with Entries = List.choose updateEntry model.Entries }
 
 
 /// This module defines the rendering of our application.
@@ -142,21 +136,21 @@ module Render =
     type MasterTemplate = Template<"wwwroot/index.html", ClientLoad.FromDocument>
 
     /// Render a given Todo entry.
-    let Entry (dispatch: Update.Entry.Message -> unit) (todo: View<Model.Entry>) =
+    let Entry (dispatch: Update.Entry.Message -> unit) (entry: View<Model.Entry>) =
         MasterTemplate.Entry()
-            .Label(text todo.V.Task)
+            .Label(text entry.V.Task)
             .CssAttrs(
-                Attr.ClassPred "completed" todo.V.IsCompleted,
-                Attr.ClassPred "editing" todo.V.Editing.IsSome,
+                Attr.ClassPred "completed" entry.V.IsCompleted,
+                Attr.ClassPred "editing" entry.V.Editing.IsSome,
                 Attr.ClassPred "hidden" (
-                    match Route.location.V, todo.V.IsCompleted with
+                    match Route.location.V, entry.V.IsCompleted with
                     | Route.Completed, false -> true
                     | Route.Active, true -> true
                     | _ -> false
                 )
             )
             .EditingTask(
-                V(todo.V.Editing |> Option.defaultValue ""),
+                V(entry.V.Editing |> Option.defaultValue ""),
                 fun text -> dispatch (Update.Entry.Edit text)
             )
             .EditBlur(fun _ -> dispatch Update.Entry.CommitEdit)
@@ -167,7 +161,7 @@ module Render =
                 | _ -> ()
             )
             .IsCompleted(
-                V todo.V.IsCompleted,
+                V entry.V.IsCompleted,
                 fun x -> dispatch (Update.Entry.SetCompleted x)
             )
             .Remove(fun _ -> dispatch Update.Entry.Remove)
@@ -177,15 +171,15 @@ module Render =
     /// Render the whole application.
     let TodoList (dispatch: Update.Message -> unit) (state: View<Model.TodoList>) =
         MasterTemplate()
-            .Entries(V(state.V.Todos).DocSeqCached(Model.Entry.Key, fun key todo ->
+            .Entries(V(state.V.Entries).DocSeqCached(Model.Entry.Key, fun key entry ->
                 let entryDispatch msg = dispatch (Update.EntryMessage (key, msg))
-                Entry entryDispatch todo
+                Entry entryDispatch entry
             ))
             .ClearCompleted(fun _ -> dispatch Update.ClearCompleted)
             .IsCompleted(
-                V(match state.V.Todos with
+                V(match state.V.Entries with
                     | [] -> false
-                    | l -> l |> List.forall (fun t -> t.IsCompleted)),
+                    | l -> l |> List.forall (fun e -> e.IsCompleted)),
                 fun c -> dispatch (Update.SetAllCompleted c)
             )
             .Task(
@@ -198,7 +192,7 @@ module Render =
                     e.Event.PreventDefault()
             )
             .ItemsLeft(
-                V(match List.length state.V.Todos with
+                V(match List.length state.V.Entries with
                     | 1 -> "1 item left"
                     | n -> string n + " items left")
             )
