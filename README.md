@@ -1,75 +1,65 @@
 # WebSharper.Mvu
 
-This library implements an Elm-inspired MVU (Model-View-Update) architecture for WebSharper client-side applications.
+This library implements an [Elm](https://guide.elm-lang.org/architecture/)-inspired MVU (Model-View-Update) architecture for WebSharper client-side applications.
 
-It includes a sample [TodoMVC](https://todomvc.com) application which showcases the features of the library.
+It is based on [WebSharper.UI](http://developers.websharper.com/docs/v4.x/fs/ui) for its reactivity and HTML rendering.
 
-## The TodoMvc sample
+## The MVU architecture
 
-The folder `WebSharper.Mvu.TodoMvc` contains an implementation of the popular [TodoMVC](https://todomvc.com/) application.
+Model-View-Update is an application architecture that aims to make the behavior and state of GUIs clear and predictable.
 
-### Building and running the application
+The state of the application is stored as a single **Model**, which is an immutable value (generally a record).
 
-To build the application (and the library), simply run the following command:
+This is rendered by a **View** [1], which defines how the model is transformed into DOM elements.
 
-```bash
-dotnet build
+Finally, all changes to the model are applied by a pure **Update** function, which takes messages sent by the view and applies changes accordingly.
+
+[1] Although in WebSharper.Mvu we tend to use the term **Render** instead, to avoid confusion with the WebSharper.UI `View` type.
+
+## Features of WebSharper.Mvu
+
+WebSharper.Mvu provides a number of features on top of this architecture.
+
+### Time-travel debugging with RemoteDev
+
+WebSharper.Mvu integrates seamlessly with [RemoteDev](https://github.com/zalmoxisus/remotedev). This tool allows you to inspect the successive messages and states of your model, and even to replay old states and see the effect on your view.
+
+![RemoteDev screenshot](images/remotedev.png)
+
+This is done by adding a single line to your app declaration:
+
+```fsharp
+App.Create initialModel update render
+|> App.WithRemoteDev (RemoteDev.Options(hostname = "localhost", port = 8000))
+|> App.Run
 ```
 
-To run the application, you have two options.
+[Learn more about WebSharper.Mvu and RemoteDev.](docs/remotedev.md)
 
-* With Kestrel (ASP.NET Core):
+### Automatic local storage
 
-    ```bash
-    dotnet run -p WebSharper.Mvu.TodoMvc
-    ```
+WebSharper.Mvu can automatically save the model to the local storage on every change. This allows you to keep the same application state across page refreshes, which is very useful for debugging.
 
-* With `webpack-dev-server`:
+This is done by adding a single line to your app declaration:
 
-    ```bash
-    npm install     # Run once to restore npm packages
-    npm run dev     # Start the server
-    ```
-    
-    Or:
-    
-    ```bash
-    yarn install    # Run once to restore npm packages
-    yarn run dev    # Start the server
-    ```
+```fsharp
+App.Create initialModel update render
+|> App.WithLocalStorage "key"
+|> App.Run
+```
 
-The application supports time-travelling debugging using [RemoteDev](https://github.com/zalmoxisus/remotedev). Here is how to use it:
+### HTML templating
 
-* Start the remotedev server:
+WebSharper.Mvu can make use of WebSharper.UI's HTML templating facilities. This reinforces the separation of concerns by keeping the view contained in HTML files. The render function then just connects reactive content and event handlers to the strongly-typed template holes.
 
-    ```bash
-    npm install         # Run once to restore npm packages
-    npm run remotedev   # Start the remotedev server
-    ```
-    
-    Or:
-    
-    ```bash
-    yarn install        # Run once to restore npm packages
-    yarn run remotedev  # Start the remotedev server
-    ```
+[Learn more about WebSharper.UI HTML templating.](http://developers.websharper.com/docs/v4.x/fs/ui#templating)
 
-* Install and start the [Redux devtools extension](https://github.com/zalmoxisus/redux-devtools-extension#installation) for your browser.
+<!-- ### Routing (integration TODO) -->
 
-### Code walkthrough
+## Differences with other MVU libraries
 
-The whole application is contained in the file [TodoMvc.fs](WebSharper.Mvu.TodoMvc/TodoMvc.fs). The other F# files in this folder simply provide a server for running with `dotnet`.
+The main point that differenciates WebSharper.Mvu from other MVU libraries is the way the render function works.
 
-The general structure of a WebSharper.Mvu application should be familiar if you know MVU architectures such as Elm or Redux.
+In most MVU libraries, the view function directly takes a Model value as argument. It is called every time the model changes, and returns a new representation of the rendered document every time. This new representation is then applied to the DOM by a diffing DOM library such as React.
 
-* At the core of the architecture is the **model**, of type `Model.TodoList`. This is the entire state of the application, defined as an immutable record.
-
-* The application logic is implemented as a **pure** function `Update.TodoList` which defines how the model is updated.
-
-    The update function is called on every user input: text input, checkbox click, etc. This action is encoded as a **message**, of type `Update.Message`. The update function computes the new model based on the old model and the message.
-
-* Finally, the application is **render**ed by the function `Render.TodoList`. This function takes care of binding the dynamic state to the DOM. It also binds event handlers to send messages using `dispatch`.
-
-* All these elements are connected together in the entry point by `App.Create`.
-
-* Additionally, the **route** is defined in the `Route` module and allows the application to react to changes to the URL.
+In contrast, in WebSharper.Mvu, the render function takes a WebSharper.UI `View<Model>` as argument. It is called only once, and it is this `View` that changes every time the model is updated. This helps make more explicit which parts of the rendered document are static and which parts are reactive.
