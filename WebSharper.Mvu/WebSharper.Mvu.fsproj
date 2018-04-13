@@ -12,6 +12,9 @@
     <EmbeddedResource Include="dist/remotedev.js">
       <LogicalName>remotedev.js</LogicalName>
     </EmbeddedResource>
+    <EmbeddedResource Include="page.css">
+      <LogicalName>page.css</LogicalName>
+    </EmbeddedResource>
     <None Include="wsconfig.json" />
   </ItemGroup>
 

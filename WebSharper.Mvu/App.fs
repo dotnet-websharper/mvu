@@ -1,25 +1,105 @@
 ﻿namespace WebSharper.Mvu
 
+#nowarn "40" // let rec container
+
+open System.Collections.Generic
 open WebSharper
 open WebSharper.JavaScript
 open WebSharper.UI
+open WebSharper.UI.Html
+open WebSharper.UI.Client
+
+/// A function that dispatches a message to the update function.
+type Dispatch<'Message> = 'Message -> unit
+
+/// An MVU application.
+[<JavaScript>]
+type App<'Message, 'Model, 'Rendered> =
+    internal {
+        Init : unit -> unit
+        Var : Var<'Model>
+        View : View<'Model>
+        Update : 'Message -> 'Model -> 'Model
+        Render : Dispatch<'Message> -> View<'Model> -> 'Rendered
+    }
+
+[<Require(typeof<Resources.PagerCss>)>]
+[<JavaScript>]
+[<Sealed>]
+type Page<'Message, 'Model> internal (render: Dispatch<'Message> -> View<'Model> -> Elt, isRoot: bool, keepInDom: bool) =
+
+    member __.IsRoot = isRoot
+
+    member __.KeepInDom = keepInDom
+
+    member __.Render(disp, mdl) =
+        render disp mdl
+
+    static member Reactive
+        (
+            key: 'EndPointArgs -> 'K,
+            render: 'K -> Dispatch<'Message> -> View<'Model> -> #Doc,
+            ?isRoot: bool,
+            ?keepInDom: bool
+        ) =
+        let dic = Dictionary()
+        let getOrRender (route: 'EndPointArgs) (dispatch: Dispatch<'Message>) (model: View<'Model>) =
+            let k = key route
+            match dic.TryGetValue k with
+            | true, (var, doc) ->
+                Var.Set var route
+                doc
+            | false, _ ->
+                let var = Var.Create route
+                let doc = div [attr.``class`` "ws-page"] [render k dispatch model]
+                dic.[k] <- (var, doc)
+                doc
+        fun ep -> Page<'Message, 'Model>(getOrRender ep, defaultArg isRoot false, defaultArg keepInDom true)
+
+    static member Create(render, ?isRoot, ?keepInDom) =
+        Page<'Message, 'Model>.Reactive(id, render, ?isRoot = isRoot, ?keepInDom = keepInDom)
+
+    static member Single(render, ?isRoot, ?keepInDom) =
+        Page<'Message, 'Model>.Reactive(ignore, (fun () -> render), ?isRoot = isRoot, ?keepInDom = keepInDom)
+
+[<JavaScript>]
+[<Sealed>]
+type internal Pager<'Message, 'Model> (route: Var<'Model>, render: 'Model -> Page<'Message, 'Model>, attrs: seq<Attr>, dispatch: Dispatch<'Message>, model: View<'Model>) =
+    let mutable toRemove = None : option<Elt>
+
+    let rec container : WebSharper.UI.Client.EltUpdater =
+        let elt =
+            div [
+                attr.``class`` "ws-page-container"
+                on.viewUpdate route.View (fun el r ->
+                    let page = render r
+                    let elt = page.Render(dispatch, model)
+                    let domElt = elt.Dom
+                    let children = el.ChildNodes
+                    for i = 0 to children.Length - 1 do
+                        if children.[i] !==. domElt then
+                            (children.[i] :?> Dom.Element).SetAttribute("aria-hidden", "true")
+                            |> ignore
+                    domElt.RemoveAttribute("aria-hidden")
+                    match toRemove with
+                    | None -> ()
+                    | Some toRemove ->
+                        el.RemoveChild toRemove.Dom |> ignore
+                        container.RemoveUpdated toRemove
+                    if not (el.Contains domElt) then
+                        el.AppendChild domElt |> ignore
+                        container.AddUpdated elt
+                    toRemove <- if page.KeepInDom then None else Some elt
+                )
+                Attr.Concat attrs
+            ] []
+        elt.ToUpdater()
+
+    member __.Doc = container :> Doc
 
 /// Bring together the Model-View-Update system and augment it with extra capabilities.
 [<JavaScript>]
 module App =
-
-    /// A function that dispatches a message to the update function.
-    type Dispatch<'Message> = 'Message -> unit
-
-    /// An MVU application.
-    type App<'Message, 'Model, 'Rendered> =
-        internal {
-            Init : unit -> unit
-            Var : Var<'Model>
-            View : View<'Model>
-            Update : 'Message -> 'Model -> 'Model
-            Render : Dispatch<'Message> -> View<'Model> -> 'Rendered
-        }
 
     /// <summary>
     /// Create an MVU application based on an initial model, an update function
@@ -28,10 +108,27 @@ module App =
     /// <param name="initModel">The initial value of the model.</param>
     /// <param name="update">Computes the new model on every message.</param>
     /// <param name="render">Renders the application based on a reactive view of the model.</param>
-    let Create (initModel: 'Model)
+    let Create
+            (initModel: 'Model)
             (update: 'Message -> 'Model -> 'Model)
             (render: Dispatch<'Message> -> View<'Model> -> 'Rendered) =
         let var = Var.Create initModel
+        {
+            Init = ignore
+            Var = var
+            View = var.View
+            Update = update
+            Render = render
+        }
+
+    let CreatePaged
+            (initModel: 'Model)
+            (update: 'Message -> 'Model -> 'Model)
+            (render: 'Model -> Page<'Message, 'Model>) =
+        let var = Var.Create initModel
+        let render (dispatch: Dispatch<'Message>) (view: View<'Model>) =
+            let pager = Pager(var, render, [], dispatch, view)
+            pager.Doc
         {
             Init = ignore
             Var = var
