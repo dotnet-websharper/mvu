@@ -50,6 +50,8 @@ App.Create initialModel update render
 
 WebSharper.Mvu can make use of WebSharper.UI's HTML templating facilities. This reinforces the separation of concerns by keeping the view contained in HTML files. The render function then just connects reactive content and event handlers to the strongly-typed template holes.
 
+Templating also allows you to touch up your view without having to recompile the application.
+
 [Learn more about WebSharper.UI HTML templating.](http://developers.websharper.com/docs/v4.x/fs/ui#templating)
 
 ## Paging
@@ -57,6 +59,31 @@ WebSharper.Mvu can make use of WebSharper.UI's HTML templating facilities. This 
 The `Page` type makes it easy to write "multi-page SPAs": applications that are entirely client-side but still logically divided into different pages. It handles parameterized pages and allows using CSS transitions between pages.
 
 ![Paging with transitions](docs/images/paging.gif)
+
+Here is the structure of the view for the above application:
+
+```fsharp
+type EndPoint = Home | EditEntry of string
+
+type Model = { EndPoint : EndPoint; (* ... *) }
+
+let HomePage = Page.Single(fun dispatch model ->
+    // ...
+)
+
+let EditEntryPage = Page.Create(fun entryKey dispatch model ->
+    // ...
+)
+
+let render model =
+    match model.EndPoint with
+    | EndPoint.Home -> HomePage ()
+    | EndPoint.EditEntry entryKey -> EditEntryPage entryKey
+
+let main () =
+    App.CreatePaged initialModel update render
+    |> App.Run
+```
 
 ## Routing
 
@@ -67,8 +94,12 @@ Routing and paging work nicely together, but neither requires the other.
 Routing is implemented by adding a single line to your app declaration:
 
 ```fsharp
+type EndPoint = // ...
+
+type Model = { EndPoint : EndPoint; (* ... *) }
+
 let app = App.Create initialModel update render
-App.WithRouting (Router.Infer()) (fun model -> model.EndPoint) app
+App.WithRouting (Router.Infer<EndPoint>()) (fun model -> model.EndPoint) app
 |> App.Run
 ```
 
@@ -79,3 +110,9 @@ The main point that differenciates WebSharper.Mvu from other MVU libraries is th
 In most MVU libraries, the view function directly takes a Model value as argument. It is called every time the model changes, and returns a new representation of the rendered document every time. This new representation is then applied to the DOM by a diffing DOM library such as React.
 
 In contrast, in WebSharper.Mvu, the render function takes a WebSharper.UI `View<Model>` as argument. It is called only once, and it is this `View` that changes every time the model is updated. This helps make more explicit which parts of the rendered document are static and which parts are reactive.
+
+# Learn more...
+
+* [WebSharper](https://websharper.com)
+* [WebSharper UI](http://developers.websharper.com/docs/v4.x/fs/ui)
+* [WebSharper Forums](https://forums.websharper.com)
