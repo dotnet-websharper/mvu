@@ -56,34 +56,36 @@ Templating also allows you to touch up your view without having to recompile the
 
 ## Paging
 
-The `Page` type makes it easy to write "multi-page SPAs": applications that are entirely client-side but still logically divided into different pages. It handles parameterized pages and allows using CSS transitions between pages.
+The `Page` type makes it easy to write "multi-page SPAs": applications that are entirely client-side but still logically divided into different pages. It handles parameterized pages and allows using CSS transitions between pages. Pages can specify their DOM behavior, such as keeping elements around to allow for smoother transitions.
 
 ![Paging with transitions](docs/images/paging.gif)
 
-Here is the structure of the view for the above application:
+Here is the structure of [the view for the above application](https://github.com/dotnet-websharper/mvu/blob/master/WebSharper.Mvu.Tests/Client.fs):
 
 ```fsharp
 type EndPoint = Home | EditEntry of string
 
 type Model = { EndPoint : EndPoint; (* ... *) }
 
-let HomePage = Page.Single(fun dispatch model ->
+let HomePage = Page.Single(attrs = [Attr.Class "home-page"], render = fun dispatch model ->
     // ...
 )
 
-let EditEntryPage = Page.Create(fun entryKey dispatch model ->
+let EditEntryPage = Page.Create(attrs = [Attr.Class "entry-page"], render = fun key dispatch model ->
     // ...
 )
 
 let render model =
     match model.EndPoint with
     | EndPoint.Home -> HomePage ()
-    | EndPoint.EditEntry entryKey -> EditEntryPage entryKey
+    | EndPoint.EditEntry key -> EditEntryPage key
 
 let main () =
     App.CreatePaged initialModel update render
     |> App.Run
 ```
+
+The transitions are specified as [CSS transitions on the `home-page` and `entry-page` classes](https://github.com/dotnet-websharper/mvu/blob/master/WebSharper.Mvu.Tests/wwwroot/index.html).
 
 ## Routing
 
