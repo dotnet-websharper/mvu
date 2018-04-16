@@ -1,9 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net461;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Include="Resources.fs" />
     <Compile Include="RemoteDev.fs" />
@@ -17,11 +16,5 @@
     </EmbeddedResource>
     <None Include="wsconfig.json" />
   </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="WebSharper" Version="4.2.8.255" />    
-    <PackageReference Include="WebSharper.FSharp" Version="4.2.8.255" />
-    <PackageReference Include="WebSharper.UI" Version="4.2.4.113" />
-  </ItemGroup>
-
+  <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

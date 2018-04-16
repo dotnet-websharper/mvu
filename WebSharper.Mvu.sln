@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".paket", ".paket", "{884106FE-FCAC-4AE6-AAA7-D87B07CCB109}"
+	ProjectSection(SolutionItems) = preProject
+		paket.dependencies = paket.dependencies
+	EndProjectSection
+EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.Mvu.TodoMvc", "WebSharper.Mvu.TodoMvc\WebSharper.Mvu.TodoMvc.fsproj", "{BA3D28A2-47E6-4701-B3E8-784686B19F52}"
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.Mvu", "WebSharper.Mvu\WebSharper.Mvu.fsproj", "{827B05D1-DD4D-4AA1-BC7F-C5FF2C5A7C9B}"

@@ -1,0 +1,22 @@
+version 5.142.0
+
+source https://api.nuget.org/v3/index.json
+source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%IF_PASS%"
+framework: net461, netstandard2.0, netcoreapp2.0
+storage: none
+
+nuget FSharp.Core
+nuget Microsoft.AspNetCore.All ~> 2.0.5
+nuget WebSharper
+nuget WebSharper.FSharp
+nuget WebSharper.UI
+
+group build
+    framework: net45
+    source https://api.nuget.org/v3/index.json
+
+    nuget FAKE
+    nuget Paket.Core 5.141.0
+
+group wsbuild
+    git https://github.com/dotnet-websharper/build-script

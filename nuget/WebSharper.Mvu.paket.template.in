@@ -1,0 +1,20 @@
+type file
+id WebSharper.Mvu
+authors
+    IntelliFactory
+owners
+    IntelliFactory
+licenseUrl http://websharper.com/licensing
+projectUrl https://github.com/intellifactory/websharper.glmatrix
+description
+    Model-View-Update architecture for WebSharper
+tags
+    Web JavaScript F# C#
+files
+    ../WebSharper.Mvu/bin/Release/net461/WebSharper.Mvu.dll ==> lib/net461
+    ../WebSharper.Mvu/bin/Release/net461/WebSharper.Mvu.xml ==> lib/net461
+    ../WebSharper.Mvu/bin/Release/netstandard2.0/WebSharper.Mvu.dll ==> lib/netstandard2.0
+    ../WebSharper.Mvu/bin/Release/netstandard2.0/WebSharper.Mvu.xml ==> lib/netstandard2.0
+dependencies
+        WebSharper ~> LOCKEDVERSION/3
+        WebSharper.UI ~> LOCKEDVERSION/3

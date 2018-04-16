@@ -4,3 +4,9 @@ obj/
 *.user
 */wwwroot/Content/
 node_modules/
+paket-files/
+packages/
+.fake/
+build/
+nuget/*.paket.template
+.vscode/
