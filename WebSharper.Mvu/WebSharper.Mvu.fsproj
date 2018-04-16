@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Resources.fs" />
+    <Compile Include="Macros.fs" />
     <Compile Include="RemoteDev.fs" />
     <Compile Include="App.fs" />
     <None Include="src/index.js" />

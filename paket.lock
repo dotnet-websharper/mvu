@@ -1634,13 +1634,14 @@ NUGET
     WebSharper (4.2.8.255)
     WebSharper.FSharp (4.2.8.255)
       WebSharper (4.2.8.255)
-    WebSharper.UI (4.2.4.114)
-      HtmlAgilityPack (>= 1.7.1)
-      System.Xml.XDocument (>= 4.3)
-      WebSharper (>= 4.2.8 < 4.3)
     WindowsAzure.Storage (9.1.1) - restriction: || (&& (== net461) (>= netcoreapp2.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp2.0))
       NETStandard.Library (>= 1.6.1) - restriction: || (&& (== net461) (< net45)) (== netcoreapp2.0) (== netstandard2.0)
       Newtonsoft.Json (>= 10.0.2)
+  remote: https://nuget.intellifactory.com/nuget
+    WebSharper.UI (4.2.5.115)
+      HtmlAgilityPack (>= 1.7.1)
+      System.Xml.XDocument (>= 4.3)
+      WebSharper (>= 4.2.8 < 4.3)
 
 GROUP build
 RESTRICTION: == net45

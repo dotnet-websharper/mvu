@@ -3,6 +3,7 @@ module TodoMvc.Client
 
 open WebSharper
 open WebSharper.JavaScript
+open WebSharper.Sitelets.InferRouter
 open WebSharper.UI
 open WebSharper.UI.Html
 open WebSharper.UI.Client
@@ -34,9 +35,16 @@ module Model =
                 Editing = None
             }
 
+    /// Our application has three URL endpoints.
+    type EndPoint =
+        | [<EndPoint "/">] All
+        | [<EndPoint "/active">] Active
+        | [<EndPoint "/completed">] Completed
+
     /// The model for the full TodoList application.
     type TodoList =
         {
+            EndPoint : EndPoint
             NewTask : string
             Entries : list<Entry>
             NextKey : Key
@@ -44,27 +52,11 @@ module Model =
 
         static member Empty =
             {
+                EndPoint = All
                 NewTask = ""
                 Entries = []
                 NextKey = 0
             }
-
-
-/// This module defines the URL routing of our application.
-module Route =
-    open WebSharper.Sitelets
-
-    /// Our application has three URL endpoints.
-    type EndPoint =
-        | [<EndPoint "/">] All
-        | [<EndPoint "/active">] Active
-        | [<EndPoint "/completed">] Completed
-
-    /// The router defines the mapping between the URL and the route value.
-    let router = Router.Infer<EndPoint>()
-
-    /// The installed router is a Var whose value is synchronized with the current URL.
-    let location = Router.InstallHash EndPoint.All router
 
 
 /// This module defines the updates that can be applied to the application's model.
@@ -136,16 +128,16 @@ module Render =
     type MasterTemplate = Template<"wwwroot/index.html", ClientLoad.FromDocument>
 
     /// Render a given Todo entry.
-    let Entry (dispatch: Update.Entry.Message -> unit) (entry: View<Model.Entry>) =
+    let Entry (dispatch: Update.Entry.Message -> unit) (endpoint: View<Model.EndPoint>) (entry: View<Model.Entry>) =
         MasterTemplate.Entry()
             .Label(text entry.V.Task)
             .CssAttrs(
                 Attr.ClassPred "completed" entry.V.IsCompleted,
                 Attr.ClassPred "editing" entry.V.Editing.IsSome,
                 Attr.ClassPred "hidden" (
-                    match Route.location.V, entry.V.IsCompleted with
-                    | Route.Completed, false -> true
-                    | Route.Active, true -> true
+                    match endpoint.V, entry.V.IsCompleted with
+                    | Model.Completed, false -> true
+                    | Model.Active, true -> true
                     | _ -> false
                 )
             )
@@ -173,7 +165,7 @@ module Render =
         MasterTemplate()
             .Entries(V(state.V.Entries).DocSeqCached(Model.Entry.Key, fun key entry ->
                 let entryDispatch msg = dispatch (Update.EntryMessage (key, msg))
-                Entry entryDispatch entry
+                Entry entryDispatch (V state.V.EndPoint) entry
             ))
             .ClearCompleted(fun _ -> dispatch Update.ClearCompleted)
             .IsCompleted(
@@ -196,15 +188,16 @@ module Render =
                     | 1 -> "1 item left"
                     | n -> string n + " items left")
             )
-            .CssFilterAll(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.All))
-            .CssFilterActive(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.Active))
-            .CssFilterCompleted(Attr.ClassPred "selected" (Route.location.V = Route.EndPoint.Completed))
+            .CssFilterAll(Attr.ClassPred "selected" (state.V.EndPoint = Model.All))
+            .CssFilterActive(Attr.ClassPred "selected" (state.V.EndPoint = Model.Active))
+            .CssFilterCompleted(Attr.ClassPred "selected" (state.V.EndPoint = Model.Completed))
             .Bind()
 
 /// The entry point of our application, called on page load.
 [<SPAEntryPoint>]
 let Main () =
-    App.CreateSimple Model.TodoList.Empty Update.TodoList Render.TodoList
+    let app = App.CreateSimple Model.TodoList.Empty Update.TodoList Render.TodoList
+    App.WithRouting (Router.Infer()) (fun (model: Model.TodoList) -> model.EndPoint) app
     |> App.WithLocalStorage "todolist"
     |> App.WithRemoteDev (RemoteDev.Options(hostname = "localhost", port = 8000))
     |> App.Run

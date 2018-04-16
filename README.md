@@ -58,7 +58,19 @@ The `Page` type makes it easy to write "multi-page SPAs": applications that are 
 
 ![Paging with transitions](docs/images/paging.gif)
 
-<!-- ### Routing (integration TODO) -->
+## Routing
+
+The page's URL can be easily bound to the application model. The URL scheme is declared using a [WebSharper router](http://developers.websharper.com/docs/v4.x/fs/sitelets#sitelet-infer), and the parsed endpoint value is stored as a field in the model.
+
+Routing and paging work nicely together, but neither requires the other.
+
+Routing is implemented by adding a single line to your app declaration:
+
+```fsharp
+let app = App.Create initialModel update render
+App.WithRouting (Router.Infer()) (fun model -> model.EndPoint) app
+|> App.Run
+```
 
 # Differences with other MVU libraries
 

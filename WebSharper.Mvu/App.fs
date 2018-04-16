@@ -238,6 +238,31 @@ module App =
             Some (update msg mdl)
         CreatePaged initModel update render
 
+    let private withRouting<'Route, 'Message, 'Model, 'Rendered when 'Route : equality>
+            (lensedRouter: Var<'Route>)
+            (router: WebSharper.Sitelets.Router<'Route>)
+            (getRoute: 'Model -> 'Route)
+            (app: App<'Message, 'Model, 'Rendered>) =
+        { app with
+            Init = fun () ->
+                app.Init()
+                let defaultRoute = getRoute app.Var.Value
+                Router.InstallHashInto lensedRouter defaultRoute router }
+
+    /// <summary>
+    /// Add URL hash routing to an application's model.
+    /// Note: due to a limitation, you cannot currently pipe into this function.
+    /// </summary>
+    /// <param name="router">The URL router.</param>
+    /// <param name="getRoute">Where the current endpoint is stored in the model. Must be a record field access.</param>
+    /// <param name="app">The application.</param>
+    [<Macro(typeof<Macros.WithRouting>)>]
+    let WithRouting<'Route, 'Message, 'Model, 'Rendered when 'Route : equality>
+            (router: WebSharper.Sitelets.Router<'Route>)
+            (getRoute: 'Model -> 'Route)
+            (app: App<'Message, 'Model, 'Rendered>) =
+        withRouting (app.Var.LensAuto getRoute) router getRoute app
+
     let private withLocalStorage
             (serializer: Serializer<'Model>)
             (key: string)
