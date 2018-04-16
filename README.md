@@ -58,27 +58,31 @@ Templating also allows you to touch up your view without having to recompile the
 
 The `Page` type makes it easy to write "multi-page SPAs": applications that are entirely client-side but still logically divided into different pages. It handles parameterized pages and allows using CSS transitions between pages. Pages can specify their DOM behavior, such as keeping elements around to allow for smoother transitions.
 
+Here is a small application that demonstrates this. [You can run it live on TrywebSharper.](http://try.websharper.com/snippet/loic.denuziere/0000Kc)
+
 ![Paging with transitions](docs/images/paging.gif)
 
-Here is the structure of [the view for the above application](https://github.com/dotnet-websharper/mvu/blob/master/WebSharper.Mvu.Tests/Client.fs):
+This is the structure of [the view for the above application](https://github.com/dotnet-websharper/mvu/blob/master/WebSharper.Mvu.Tests/Client.fs):
 
 ```fsharp
 type EndPoint = Home | EditEntry of string
 
 type Model = { EndPoint : EndPoint; (* ... *) }
 
-let HomePage = Page.Single(attrs = [Attr.Class "home-page"], render = fun dispatch model ->
-    // ...
-)
+module Pages =
 
-let EditEntryPage = Page.Create(attrs = [Attr.Class "entry-page"], render = fun key dispatch model ->
-    // ...
-)
+    let Home = Page.Single(attrs = [Attr.Class "home-page"], render = fun dispatch model ->
+        // ...
+    )
+
+    let EditEntry = Page.Create(attrs = [Attr.Class "entry-page"], render = fun key dispatch model ->
+        // ...
+    )
 
 let render model =
     match model.EndPoint with
-    | EndPoint.Home -> HomePage ()
-    | EndPoint.EditEntry key -> EditEntryPage key
+    | EndPoint.Home -> Pages.Home ()
+    | EndPoint.EditEntry key -> Pages.EditEntry key
 
 let main () =
     App.CreatePaged initialModel update render
@@ -114,6 +118,12 @@ In most MVU libraries, the view function directly takes a Model value as argumen
 In contrast, in WebSharper.Mvu, the render function takes a WebSharper.UI `View<Model>` as argument. It is called only once, and it is this `View` that changes every time the model is updated. This helps make more explicit which parts of the rendered document are static and which parts are reactive.
 
 # Learn more...
+
+About WebSharper.Mvu:
+
+* [Try Paging live](http://try.websharper.com/snippet/loic.denuziere/0000Kc)
+
+About WebSharper:
 
 * [WebSharper](https://websharper.com)
 * [WebSharper UI](http://developers.websharper.com/docs/v4.x/fs/ui)
