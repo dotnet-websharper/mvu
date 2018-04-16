@@ -52,6 +52,12 @@ WebSharper.Mvu can make use of WebSharper.UI's HTML templating facilities. This 
 
 [Learn more about WebSharper.UI HTML templating.](http://developers.websharper.com/docs/v4.x/fs/ui#templating)
 
+## Paging
+
+The `Page` type makes it easy to write "multi-page SPAs": applications that are entirely client-side but still logically divided into different pages. It handles parameterized pages and allows using CSS transitions between pages.
+
+![Paging with transitions](docs/images/paging.gif)
+
 <!-- ### Routing (integration TODO) -->
 
 # Differences with other MVU libraries

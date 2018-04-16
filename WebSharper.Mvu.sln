@@ -7,7 +7,22 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.Mvu.TodoMvc", "W
 EndProject
 Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.Mvu", "WebSharper.Mvu\WebSharper.Mvu.fsproj", "{827B05D1-DD4D-4AA1-BC7F-C5FF2C5A7C9B}"
 EndProject
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.Mvu.Tests", "WebSharper.Mvu.Tests\WebSharper.Mvu.Tests.fsproj", "{EB1DEDB2-0194-48F5-A08F-93DDCCF9B8F3}"
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "WebSharper.Mvu.Tests", "WebSharper.Mvu.Tests\WebSharper.Mvu.Tests.fsproj", "{565B3EAB-A5BF-4B6D-8A4F-EF13E0ABD667}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4A10FF25-13A2-42A2-A384-3825EA12DB3E}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{072FA63B-55FD-498D-A847-47F218D7EA49}"
+	ProjectSection(SolutionItems) = preProject
+		docs\remotedev.md = docs\remotedev.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "images", "images", "{2566FB6E-5A30-41AD-B958-A96C3837808C}"
+	ProjectSection(SolutionItems) = preProject
+		docs\images\remotedev.png = docs\images\remotedev.png
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -43,23 +58,26 @@ Global
 		{827B05D1-DD4D-4AA1-BC7F-C5FF2C5A7C9B}.Release|x64.Build.0 = Release|Any CPU
 		{827B05D1-DD4D-4AA1-BC7F-C5FF2C5A7C9B}.Release|x86.ActiveCfg = Release|Any CPU
 		{827B05D1-DD4D-4AA1-BC7F-C5FF2C5A7C9B}.Release|x86.Build.0 = Release|Any CPU
-		{EB1DEDB2-0194-48F5-A08F-93DDCCF9B8F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EB1DEDB2-0194-48F5-A08F-93DDCCF9B8F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EB1DEDB2-0194-48F5-A08F-93DDCCF9B8F3}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{EB1DEDB2-0194-48F5-A08F-93DDCCF9B8F3}.Debug|x64.Build.0 = Debug|Any CPU
-		{EB1DEDB2-0194-48F5-A08F-93DDCCF9B8F3}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{EB1DEDB2-0194-48F5-A08F-93DDCCF9B8F3}.Debug|x86.Build.0 = Debug|Any CPU
-		{EB1DEDB2-0194-48F5-A08F-93DDCCF9B8F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EB1DEDB2-0194-48F5-A08F-93DDCCF9B8F3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EB1DEDB2-0194-48F5-A08F-93DDCCF9B8F3}.Release|x64.ActiveCfg = Release|Any CPU
-		{EB1DEDB2-0194-48F5-A08F-93DDCCF9B8F3}.Release|x64.Build.0 = Release|Any CPU
-		{EB1DEDB2-0194-48F5-A08F-93DDCCF9B8F3}.Release|x86.ActiveCfg = Release|Any CPU
-		{EB1DEDB2-0194-48F5-A08F-93DDCCF9B8F3}.Release|x86.Build.0 = Release|Any CPU
+		{565B3EAB-A5BF-4B6D-8A4F-EF13E0ABD667}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{565B3EAB-A5BF-4B6D-8A4F-EF13E0ABD667}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{565B3EAB-A5BF-4B6D-8A4F-EF13E0ABD667}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{565B3EAB-A5BF-4B6D-8A4F-EF13E0ABD667}.Debug|x64.Build.0 = Debug|Any CPU
+		{565B3EAB-A5BF-4B6D-8A4F-EF13E0ABD667}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{565B3EAB-A5BF-4B6D-8A4F-EF13E0ABD667}.Debug|x86.Build.0 = Debug|Any CPU
+		{565B3EAB-A5BF-4B6D-8A4F-EF13E0ABD667}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{565B3EAB-A5BF-4B6D-8A4F-EF13E0ABD667}.Release|Any CPU.Build.0 = Release|Any CPU
+		{565B3EAB-A5BF-4B6D-8A4F-EF13E0ABD667}.Release|x64.ActiveCfg = Release|Any CPU
+		{565B3EAB-A5BF-4B6D-8A4F-EF13E0ABD667}.Release|x64.Build.0 = Release|Any CPU
+		{565B3EAB-A5BF-4B6D-8A4F-EF13E0ABD667}.Release|x86.ActiveCfg = Release|Any CPU
+		{565B3EAB-A5BF-4B6D-8A4F-EF13E0ABD667}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2566FB6E-5A30-41AD-B958-A96C3837808C} = {072FA63B-55FD-498D-A847-47F218D7EA49}
+	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {170AEAE8-D047-463E-AE90-589A67DC0139}
+		SolutionGuid = {0D684D8E-9241-4ACE-B751-AE03F302FB1D}
 	EndGlobalSection
 EndGlobal

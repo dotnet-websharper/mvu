@@ -4,13 +4,20 @@
     <title>WebSharper.Mvu.Tests</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.0/css/bulma.min.css" />
     <link rel="stylesheet" type="text/css" href="Content/WebSharper.Mvu.Tests.css" />
     <style>
         /* Don't show the not-yet-loaded templates */
         [ws-template], [ws-children-template] { display: none; }
-        button { margin: 0 5px; }
+
+        .hidden { display: none; }
+
+        /*button { margin: 0 5px; }
+
         table { border-collapse: collapse; }
-        th, td { border: solid lightgray 1px; padding: 5px; }
+
+        th, td { border: solid lightgray 1px; padding: 5px; }*/
+
         .ws-page-container {
             position: absolute;
             top: 0;
@@ -18,10 +25,32 @@
             left: 0;
             right: 0;
         }
+
+        .ws-page {
+            transition-delay: 0.2s;
+        }
+
+        .home-page {
+            transition: opacity 0.2s;
+        }
+
+        .home-page[aria-hidden=true] {
+            opacity: 0;
+            transition: opacity 0.2s, left 0.2s step-end;
+        }
+
+        .entry-page {
+            transition: left 0.2s;
+            background: white;
+        }
+
+        .entry-page[aria-hidden=true] {
+            left: 100%;
+        }
     </style>
     <script type="text/javascript" src="Content/WebSharper.Mvu.Tests.head.js"></script>
 </head>
 <body>
-    <script type="text/javascript" src="Content/WebSharper.Mvu.Tests.min.js"></script>
+    <script type="text/javascript" src="Content/WebSharper.Mvu.Tests.js"></script>
 </body>
 </html>

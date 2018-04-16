@@ -25,25 +25,31 @@ type App<'Message, 'Model, 'Rendered> =
 
 [<Require(typeof<Resources.PagerCss>)>]
 [<JavaScript>]
-[<Sealed>]
-type Page<'Message, 'Model> internal (render: Dispatch<'Message> -> View<'Model> -> Elt, isRoot: bool, keepInDom: bool) =
+type Page<'Message, 'Model> =
+    internal {
+        Render: Pager<'Message, 'Model> -> Dispatch<'Message> -> View<'Model> -> Elt
+        KeepInDom: bool
+        UsesTransition: bool
+    }
 
-    member __.IsRoot = isRoot
-
-    member __.KeepInDom = keepInDom
-
-    member __.Render(disp, mdl) =
-        render disp mdl
-
+    /// <summary>
+    /// Create a reactive page.
+    /// </summary>
+    /// <param name="key">Get the identifier of the current endpoint. A new instance of the page is only created for different values of the key.</param>
+    /// <param name="render">Render the page itself.</param>
+    /// <param name="attrs">Attributes to add to the wrapping div.</param>
+    /// <param name="keepInDom">If true, don't remove the page from the DOM when hidden.</param>
+    /// <param name="usesTransition">Pass true if this page uses CSS transitions to appear and disappear.</param>
     static member Reactive
         (
             key: 'EndPointArgs -> 'K,
             render: 'K -> Dispatch<'Message> -> View<'Model> -> #Doc,
-            ?isRoot: bool,
-            ?keepInDom: bool
+            ?attrs: seq<Attr>,
+            ?keepInDom: bool,
+            ?usesTransition: bool
         ) =
         let dic = Dictionary()
-        let getOrRender (route: 'EndPointArgs) (dispatch: Dispatch<'Message>) (model: View<'Model>) =
+        let getOrRender (route: 'EndPointArgs) (pager: Pager<'Message, 'Model>) (dispatch: Dispatch<'Message>) (model: View<'Model>) =
             let k = key route
             match dic.TryGetValue k with
             | true, (var, doc) ->
@@ -51,51 +57,84 @@ type Page<'Message, 'Model> internal (render: Dispatch<'Message> -> View<'Model>
                 doc
             | false, _ ->
                 let var = Var.Create route
-                let doc = div [attr.``class`` "ws-page"] [render k dispatch model]
+                let doc =
+                    div [
+                        attr.``class`` "ws-page"
+                        (match attrs with Some attrs -> Attr.Concat attrs | None -> Attr.Empty)
+                        on.transitionEnd (fun el ev -> pager.RemoveIfNeeded el)
+                    ] [render k dispatch model]
                 dic.[k] <- (var, doc)
                 doc
-        fun ep -> Page<'Message, 'Model>(getOrRender ep, defaultArg isRoot false, defaultArg keepInDom false)
+        fun ep ->
+            {
+                Render = getOrRender ep
+                KeepInDom = defaultArg keepInDom false
+                UsesTransition = defaultArg usesTransition false
+            } : Page<'Message, 'Model>
 
-    static member Create(render, ?isRoot, ?keepInDom) =
-        Page<'Message, 'Model>.Reactive(id, render, ?isRoot = isRoot, ?keepInDom = keepInDom)
+    /// <summary>
+    /// Create a reactive page. A new instance of the page is created for different values of the endpoint args.
+    /// </summary>
+    /// <param name="render">Render the page itself.</param>
+    /// <param name="attrs">Attributes to add to the wrapping div.</param>
+    /// <param name="keepInDom">If true, don't remove the page from the DOM when hidden.</param>
+    /// <param name="usesTransition">Pass true if this page uses CSS transitions to appear and disappear.</param>
+    static member Create(render, ?attrs, ?keepInDom, ?usesTransition) : 'EndPointArgs -> _ =
+        Page<'Message, 'Model>.Reactive(id, render, ?attrs = attrs, ?keepInDom = keepInDom, ?usesTransition = usesTransition)
 
-    static member Single(render, ?isRoot, ?keepInDom) =
-        Page<'Message, 'Model>.Reactive(ignore, (fun () -> render), ?isRoot = isRoot, ?keepInDom = keepInDom)
+    /// <summary>
+    /// Create a reactive page. A single instance of the page is (lazily) created.
+    /// </summary>
+    /// <param name="render">Render the page itself.</param>
+    /// <param name="attrs">Attributes to add to the wrapping div.</param>
+    /// <param name="keepInDom">If true, don't remove the page from the DOM when hidden.</param>
+    /// <param name="usesTransition">Pass true if this page uses CSS transitions to appear and disappear.</param>
+    static member Single(render, ?attrs, ?keepInDom, ?usesTransition) =
+        Page<'Message, 'Model>.Reactive(ignore, (fun () -> render), ?attrs = attrs, ?keepInDom = keepInDom, ?usesTransition = usesTransition)
 
-    static member internal Pager(route: Var<'Model>, render: 'Model -> Page<'Message, 'Model>, attrs: seq<Attr>, dispatch: Dispatch<'Message>, model: View<'Model>) =
-        let mutable toRemove = None : option<Elt>
+and [<JavaScript>] internal Pager<'Message, 'Model>(route: Var<'Model>, render: 'Model -> Page<'Message, 'Model>, dispatch: Dispatch<'Message>, model: View<'Model>) as this =
+    let mutable toRemove = None : option<Elt>
 
-        let rec container : WebSharper.UI.Client.EltUpdater =
-            let elt =
-                div [
-                    attr.``class`` "ws-page-container"
-                    on.viewUpdate route.View (fun el r ->
-                        let page = render r
-                        let elt = page.Render(dispatch, model)
-                        let domElt = elt.Dom
-                        let children = el.ChildNodes
-                        for i = 0 to children.Length - 1 do
-                            if children.[i] !==. domElt then
-                                (children.[i] :?> Dom.Element).SetAttribute("aria-hidden", "true")
-                                |> ignore
-                        domElt.RemoveAttribute("aria-hidden")
-                        match toRemove with
-                        | None -> ()
-                        | Some toRemove ->
+    let rec container : WebSharper.UI.Client.EltUpdater =
+        let elt =
+            div [
+                attr.``class`` "ws-page-container"
+                on.viewUpdate route.View (fun el r ->
+                    let page = render r
+                    let elt = page.Render this dispatch model
+                    let domElt = elt.Dom
+                    let children = el.ChildNodes
+                    for i = 0 to children.Length - 1 do
+                        if children.[i] !==. domElt then
+                            (children.[i] :?> Dom.Element).SetAttribute("aria-hidden", "true")
+                            |> ignore
+                    domElt.RemoveAttribute("aria-hidden")
+                    match toRemove with
+                    | None -> ()
+                    | Some toRemove ->
+                        if page.UsesTransition then
+                            toRemove.Dom?dataset?wsRemoving <- "true"
+                        else
                             el.RemoveChild toRemove.Dom |> ignore
-                            container.RemoveUpdated toRemove
-                        if not (el.Contains domElt) then
-                            el.AppendChild domElt |> ignore
-                            container.AddUpdated elt
-                        toRemove <- if page.KeepInDom then None else Some elt
-                    )
-                    Attr.Concat attrs
-                ] []
-            elt.ToUpdater()
+                        container.RemoveUpdated toRemove
+                    if not (el.Contains domElt) then
+                        domElt.SetAttribute("aria-hidden", "true")
+                        el.AppendChild domElt |> ignore
+                        container.AddUpdated elt
+                        JS.RequestAnimationFrame (fun _ -> domElt.RemoveAttribute("aria-hidden")) |> ignore
+                    toRemove <- if page.KeepInDom then None else Some elt
+                )
+            ] []
+        elt.ToUpdater()
 
-        container :> Doc
+    member __.RemoveIfNeeded(elt: Dom.Element) =
+        if elt?dataset?wsRemoving = "true" then
+            elt?dataset?wsRemoving <- "false"
+            container.Dom.RemoveChild elt |> ignore
 
     member __.Doc = container :> Doc
+
+
 
 /// Bring together the Model-View-Update system and augment it with extra capabilities.
 [<JavaScript>]
@@ -127,7 +166,7 @@ module App =
             (render: 'Model -> Page<'Message, 'Model>) =
         let var = Var.Create initModel
         let render (dispatch: Dispatch<'Message>) (view: View<'Model>) =
-            Page<'Message, 'Model>.Pager(var, render, [], dispatch, view)
+            Pager<'Message, 'Model>(var, render, dispatch, view).Doc
         {
             Init = ignore
             Var = var

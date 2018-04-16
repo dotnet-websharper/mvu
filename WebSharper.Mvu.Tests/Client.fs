@@ -56,42 +56,69 @@ module Client =
     module Pages =
 
         let showDate() =
-            p [] [text ("Rendered at " + Date().ToTimeString())]
+            p [Attr.Class "hidden"] [text ("Rendered at " + Date().ToTimeString())]
 
-        let Home = Page.Single(fun dispatch model ->
-            let inp = input [] []
+        let Home = Page.Single(attrs = [Attr.Class "home-page"], usesTransition = true, render = fun dispatch model ->
+            let inp = input [Attr.Class "input"] []
             Doc.Concat [
                 showDate()
-                button [on.click (fun _ _ -> dispatch Decrement)] [text "-"]
-                text (string model.V.Counter)
-                button [on.click (fun _ _ -> dispatch Increment)] [text "+"]
-                h2 [] [text "Entries:"]
-                p [] [
-                    inp
-                    button [on.click (fun _ _ -> dispatch (Goto (EndPoint.EditEntry inp.Value)))] [text "Add/edit entry"]
+                div [Attr.Class "hidden"] [
+                    button [on.click (fun _ _ -> dispatch Decrement)] [text "-"]
+                    text (string model.V.Counter)
+                    button [on.click (fun _ _ -> dispatch Increment)] [text "+"]
                 ]
-                table [] [
+                h2 [Attr.Class "subtitle hidden"] [text "Entries:"]
+                div [Attr.Class "section"] [
+                    div [Attr.Class "field has-addons"] [
+                        div [Attr.Class "control"] [inp]
+                        div [Attr.Class "control"] [
+                            button [
+                                Attr.Class "button"
+                                on.click (fun _ _ -> dispatch (Goto (EndPoint.EditEntry inp.Value)))
+                            ] [text "Add/edit entry"]
+                        ]
+                    ]
+                ]
+                table [Attr.Class "table is-fullwidth"] [
                     V(Map.toSeq model.V.Entries).DocSeqCached(fst, fun key (v: View<string * string>) ->
                         tr [] [
                             th [] [text key]
                             td [] [text (snd v.V)]
                             td [] [
-                                button [on.click (fun _ _ -> dispatch (Goto (EndPoint.EditEntry key)))] [text "Edit"]
-                                button [on.click (fun _ _ -> dispatch (RemoveEntry key))] [text "Remove"]
+                                div [Attr.Class "buttons has-addons"] [
+                                    button [
+                                        Attr.Class "button is-small"
+                                        on.click (fun _ _ -> dispatch (Goto (EndPoint.EditEntry key)))
+                                    ] [text "Edit"]
+                                    button [
+                                        Attr.Class "button is-small"
+                                        on.click (fun _ _ -> dispatch (RemoveEntry key))
+                                    ] [text "Remove"]
+                                ]
                             ]
                         ])
                 ]
             ])
 
-        let EditEntry = Page.Create(fun key dispatch model ->
+        let EditEntry = Page.Create(attrs = [Attr.Class "entry-page"], usesTransition = true, render = fun key dispatch model ->
             let value = V(Map.tryFind key model.V.Entries |> Option.defaultValue "")
             let var = Var.Make value (fun v -> dispatch (SetEntry (key, v)))
-            Doc.Concat [
+            div [Attr.Class "section"] [
                 showDate()
-                p [] [text ("Editing value for key: " + key)]
-                Doc.Input [] var
-                button [on.click (fun _ _ -> dispatch (Goto EndPoint.Home))] [text "Ok"]
-                button [on.click (fun _ _ -> dispatch (RemoveEntry key))] [text "Remove"]
+                label [Attr.Class "label"] [text ("Editing value for key: " + key)]
+                div [Attr.Class "field has-addons"] [
+                    div [Attr.Class "control"] [Doc.Input [Attr.Class "input"] var]
+                    div [Attr.Class "control"] [
+                        button [
+                            Attr.Class "button"
+                            on.click (fun _ _ -> dispatch (Goto EndPoint.Home))
+                        ] [text "Ok"]
+                    ]
+                    button [
+                        Attr.Class "button"
+                        on.click (fun _ _ -> dispatch (RemoveEntry key))
+                    ] [text "Remove"]
+                ]
             ])
 
     let Render mdl =
