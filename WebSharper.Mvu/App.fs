@@ -54,7 +54,7 @@ type Page<'Message, 'Model> internal (render: Dispatch<'Message> -> View<'Model>
                 let doc = div [attr.``class`` "ws-page"] [render k dispatch model]
                 dic.[k] <- (var, doc)
                 doc
-        fun ep -> Page<'Message, 'Model>(getOrRender ep, defaultArg isRoot false, defaultArg keepInDom true)
+        fun ep -> Page<'Message, 'Model>(getOrRender ep, defaultArg isRoot false, defaultArg keepInDom false)
 
     static member Create(render, ?isRoot, ?keepInDom) =
         Page<'Message, 'Model>.Reactive(id, render, ?isRoot = isRoot, ?keepInDom = keepInDom)
@@ -62,38 +62,38 @@ type Page<'Message, 'Model> internal (render: Dispatch<'Message> -> View<'Model>
     static member Single(render, ?isRoot, ?keepInDom) =
         Page<'Message, 'Model>.Reactive(ignore, (fun () -> render), ?isRoot = isRoot, ?keepInDom = keepInDom)
 
-[<JavaScript>]
-[<Sealed>]
-type internal Pager<'Message, 'Model> (route: Var<'Model>, render: 'Model -> Page<'Message, 'Model>, attrs: seq<Attr>, dispatch: Dispatch<'Message>, model: View<'Model>) =
-    let mutable toRemove = None : option<Elt>
+    static member internal Pager(route: Var<'Model>, render: 'Model -> Page<'Message, 'Model>, attrs: seq<Attr>, dispatch: Dispatch<'Message>, model: View<'Model>) =
+        let mutable toRemove = None : option<Elt>
 
-    let rec container : WebSharper.UI.Client.EltUpdater =
-        let elt =
-            div [
-                attr.``class`` "ws-page-container"
-                on.viewUpdate route.View (fun el r ->
-                    let page = render r
-                    let elt = page.Render(dispatch, model)
-                    let domElt = elt.Dom
-                    let children = el.ChildNodes
-                    for i = 0 to children.Length - 1 do
-                        if children.[i] !==. domElt then
-                            (children.[i] :?> Dom.Element).SetAttribute("aria-hidden", "true")
-                            |> ignore
-                    domElt.RemoveAttribute("aria-hidden")
-                    match toRemove with
-                    | None -> ()
-                    | Some toRemove ->
-                        el.RemoveChild toRemove.Dom |> ignore
-                        container.RemoveUpdated toRemove
-                    if not (el.Contains domElt) then
-                        el.AppendChild domElt |> ignore
-                        container.AddUpdated elt
-                    toRemove <- if page.KeepInDom then None else Some elt
-                )
-                Attr.Concat attrs
-            ] []
-        elt.ToUpdater()
+        let rec container : WebSharper.UI.Client.EltUpdater =
+            let elt =
+                div [
+                    attr.``class`` "ws-page-container"
+                    on.viewUpdate route.View (fun el r ->
+                        let page = render r
+                        let elt = page.Render(dispatch, model)
+                        let domElt = elt.Dom
+                        let children = el.ChildNodes
+                        for i = 0 to children.Length - 1 do
+                            if children.[i] !==. domElt then
+                                (children.[i] :?> Dom.Element).SetAttribute("aria-hidden", "true")
+                                |> ignore
+                        domElt.RemoveAttribute("aria-hidden")
+                        match toRemove with
+                        | None -> ()
+                        | Some toRemove ->
+                            el.RemoveChild toRemove.Dom |> ignore
+                            container.RemoveUpdated toRemove
+                        if not (el.Contains domElt) then
+                            el.AppendChild domElt |> ignore
+                            container.AddUpdated elt
+                        toRemove <- if page.KeepInDom then None else Some elt
+                    )
+                    Attr.Concat attrs
+                ] []
+            elt.ToUpdater()
+
+        container :> Doc
 
     member __.Doc = container :> Doc
 
@@ -127,8 +127,7 @@ module App =
             (render: 'Model -> Page<'Message, 'Model>) =
         let var = Var.Create initModel
         let render (dispatch: Dispatch<'Message>) (view: View<'Model>) =
-            let pager = Pager(var, render, [], dispatch, view)
-            pager.Doc
+            Page<'Message, 'Model>.Pager(var, render, [], dispatch, view)
         {
             Init = ignore
             Var = var
