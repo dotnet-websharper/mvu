@@ -136,7 +136,7 @@ module Client =
 
     [<SPAEntryPoint>]
     let Main () =
-        App.CreatePaged InitModel Update Render
+        App.CreateSimplePaged InitModel Update Render
         |> App.WithLocalStorage "mvu-tests"
         |> App.Run
         |> Doc.RunPrepend JS.Document.Body

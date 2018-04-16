@@ -19,9 +19,26 @@ type App<'Message, 'Model, 'Rendered> =
         Init : unit -> unit
         Var : Var<'Model>
         View : View<'Model>
-        Update : 'Message -> 'Model -> 'Model
+        Update : Dispatch<'Message> -> 'Message -> 'Model -> option<'Model>
         Render : Dispatch<'Message> -> View<'Model> -> 'Rendered
     }
+
+/// An action to take as a result of the Update function.
+type Action<'Message, 'Model> =
+    | DoNothing
+    | SetModel of 'Model
+    | Command of (Dispatch<'Message> -> unit)
+    | CommandAsync of (Dispatch<'Message> -> Async<unit>)
+    | CombinedAction of list<Action<'Message, 'Model>>
+
+    /// Combine two actions.
+    static member (+) (a1: Action<'Message, 'Model>, a2: Action<'Message, 'Model>) =
+        match a1, a2 with
+        | a, DoNothing | DoNothing, a -> a
+        | CombinedAction l1, CombinedAction l2 -> CombinedAction (l1 @ l2)
+        | CombinedAction l1, a2 -> CombinedAction (l1 @ [a2])
+        | a1, CombinedAction l2 -> CombinedAction (a1 :: l2)
+        | a1, a2 -> CombinedAction [a1; a2]
 
 [<Require(typeof<Resources.PagerCss>)>]
 [<JavaScript>]
@@ -134,23 +151,11 @@ and [<JavaScript>] internal Pager<'Message, 'Model>(route: Var<'Model>, render: 
 
     member __.Doc = container :> Doc
 
-
-
 /// Bring together the Model-View-Update system and augment it with extra capabilities.
 [<JavaScript>]
 module App =
 
-    /// <summary>
-    /// Create an MVU application based on an initial model, an update function
-    /// and a render function.
-    /// </summary>
-    /// <param name="initModel">The initial value of the model.</param>
-    /// <param name="update">Computes the new model on every message.</param>
-    /// <param name="render">Renders the application based on a reactive view of the model.</param>
-    let Create
-            (initModel: 'Model)
-            (update: 'Message -> 'Model -> 'Model)
-            (render: Dispatch<'Message> -> View<'Model> -> 'Rendered) =
+    let private create initModel update render =
         let var = Var.Create initModel
         {
             Init = ignore
@@ -160,9 +165,53 @@ module App =
             Render = render
         }
 
-    let CreatePaged
+    /// <summary>
+    /// Create an MVU application.
+    /// </summary>
+    /// <param name="initModel">The initial value of the model.</param>
+    /// <param name="update">Computes the new model on every message.</param>
+    /// <param name="render">Renders the application based on a reactive view of the model.</param>
+    let CreateSimple
             (initModel: 'Model)
             (update: 'Message -> 'Model -> 'Model)
+            (render: Dispatch<'Message> -> View<'Model> -> 'Rendered) =
+        let update _ msg mdl =
+            Some (update msg mdl)
+        create initModel update render
+
+    /// <summary>
+    /// Create an MVU application.
+    /// </summary>
+    /// <param name="initModel">The initial value of the model.</param>
+    /// <param name="update">Computes the new model and/or dispatches commands on every message.</param>
+    /// <param name="render">Renders the application based on a reactive view of the model.</param>
+    let Create (initModel: 'Model)
+            (update: 'Message -> 'Model -> Action<'Message, 'Model>)
+            (render: Dispatch<'Message> -> View<'Model> -> 'Rendered) =
+        let rec applyAction dispatch = function
+            | DoNothing -> None
+            | SetModel mdl -> Some mdl
+            | Command f -> f dispatch; None
+            | CommandAsync f -> Async.Start (f dispatch); None
+            | CombinedAction actions ->
+                (None, actions)
+                ||> List.fold (fun newModel action ->
+                    applyAction dispatch action
+                    |> Option.orElse newModel
+                )
+        let update dispatch msg mdl =
+            update msg mdl |> applyAction dispatch
+        create initModel update render
+
+    /// <summary>
+    /// Create an MVU application using paging.
+    /// </summary>
+    /// <param name="initModel">The initial value of the model.</param>
+    /// <param name="update">Computes the new model and/or dispatches commands on every message.</param>
+    /// <param name="render">Renders the application based on a reactive view of the model.</param>
+    let CreatePaged
+            (initModel: 'Model)
+            (update: Dispatch<'Message> -> 'Message -> 'Model -> option<'Model>)
             (render: 'Model -> Page<'Message, 'Model>) =
         let var = Var.Create initModel
         let render (dispatch: Dispatch<'Message>) (view: View<'Model>) =
@@ -175,7 +224,21 @@ module App =
             Render = render
         }
 
-    let private WithLocalStorage'
+    /// <summary>
+    /// Create an MVU application using paging.
+    /// </summary>
+    /// <param name="initModel">The initial value of the model.</param>
+    /// <param name="update">Computes the new model on every message.</param>
+    /// <param name="render">Renders the application based on a reactive view of the model.</param>
+    let CreateSimplePaged
+            (initModel: 'Model)
+            (update: 'Message -> 'Model -> 'Model)
+            (render: 'Model -> Page<'Message, 'Model>) =
+        let update _ msg mdl =
+            Some (update msg mdl)
+        CreatePaged initModel update render
+
+    let private withLocalStorage
             (serializer: Serializer<'Model>)
             (key: string)
             (app: App<_, 'Model, _>) =
@@ -204,15 +267,15 @@ module App =
     /// <param name="app">The application</param>
     [<Inline>]
     let WithLocalStorage key (app: App<_, 'Model, _>) =
-        WithLocalStorage' Serializer.Typed<'Model> key app
+        withLocalStorage Serializer.Typed<'Model> key app
 
     /// Run the application.
     let Run (app: App<_, _, _>) =
-        let dispatch msg = Var.Update app.Var (app.Update msg)
+        let rec dispatch msg = app.Var.UpdateMaybe (app.Update dispatch msg)
         app.Init()
         app.Render dispatch app.View
 
-    let private WithRemoteDev'
+    let private withRemoteDev
             (msgSerializer: Serializer<'Message>)
             (modelSerializer: Serializer<'Model>)
             (options: RemoteDev.Options)
@@ -238,12 +301,15 @@ module App =
                 | _ -> ()
         )
         |> ignore
-        let update msg model =
-            let newModel = app.Update msg model
-            rdev.send(
-                msgSerializer.Encode msg,
-                modelSerializer.Encode newModel
-            )
+        let update dispatch msg model =
+            let newModel = app.Update dispatch msg model
+            match newModel with
+            | Some newModel ->
+                rdev.send(
+                    msgSerializer.Encode msg,
+                    modelSerializer.Encode newModel
+                )
+            | None -> ()
             newModel
         let init() =
             app.Init()
@@ -260,4 +326,4 @@ module App =
     /// <param name="app">The application</param>
     [<Inline>]
     let WithRemoteDev options (app: App<'Message, 'Model, _>) =
-        WithRemoteDev' Serializer.Typed<'Message> Serializer.Typed<'Model> options app
+        withRemoteDev Serializer.Typed<'Message> Serializer.Typed<'Model> options app

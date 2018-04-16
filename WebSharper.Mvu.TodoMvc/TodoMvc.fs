@@ -204,7 +204,7 @@ module Render =
 /// The entry point of our application, called on page load.
 [<SPAEntryPoint>]
 let Main () =
-    App.Create Model.TodoList.Empty Update.TodoList Render.TodoList
+    App.CreateSimple Model.TodoList.Empty Update.TodoList Render.TodoList
     |> App.WithLocalStorage "todolist"
     |> App.WithRemoteDev (RemoteDev.Options(hostname = "localhost", port = 8000))
     |> App.Run
