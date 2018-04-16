@@ -1,1 +1,5 @@
 theme: jekyll-theme-tactile
+exclude:
+  - .paket
+  - node_modules
+  - packages
