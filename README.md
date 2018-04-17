@@ -119,11 +119,14 @@ In contrast, in WebSharper.Mvu, the render function takes a WebSharper.UI `View<
 
 # Learn more...
 
-About WebSharper.Mvu:
+Try WebSharper.Mvu examples live:
 
-* [Try Paging live](http://try.websharper.com/snippet/loic.denuziere/0000Kc)
+* [A simple counter](http://try.websharper.com/#/snippet/loic.denuziere/0000Kf)
+* [A list of counters](http://try.websharper.com/#/snippet/loic.denuziere/0000Kg)
+* [Paging](http://try.websharper.com/snippet/loic.denuziere/0000Kc)
+* [TodoMVC](http://try.websharper.com/#/snippet/loic.denuziere/0000Kj)
 
-About WebSharper:
+Learn more about WebSharper:
 
 * [WebSharper](https://websharper.com)
 * [WebSharper UI](http://developers.websharper.com/docs/v4.x/fs/ui)
