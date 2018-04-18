@@ -10,6 +10,7 @@ nuget Microsoft.AspNetCore.All ~> 2.0.5
 nuget WebSharper
 nuget WebSharper.FSharp
 nuget WebSharper.UI
+nuget WebSharper.AspNetCore
 
 group build
     framework: net45

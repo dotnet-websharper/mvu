@@ -24,6 +24,7 @@ type App<'Message, 'Model, 'Rendered> =
     }
 
 /// An action to take as a result of the Update function.
+[<JavaScript>]
 type Action<'Message, 'Model> =
     | DoNothing
     | SetModel of 'Model
@@ -39,6 +40,12 @@ type Action<'Message, 'Model> =
         | CombinedAction l1, a2 -> CombinedAction (l1 @ [a2])
         | a1, CombinedAction l2 -> CombinedAction (a1 :: l2)
         | a1, a2 -> CombinedAction [a1; a2]
+
+    static member DispatchAsync<'T> (toMessage: 'T -> 'Message) (action: Async<'T>) : Action<'Message, 'Model> =
+        CommandAsync (fun dispatch -> async {
+            let! res = action
+            dispatch (toMessage res)
+        })
 
 [<Require(typeof<Resources.PagerCss>)>]
 [<JavaScript>]
@@ -211,18 +218,12 @@ module App =
     /// <param name="render">Renders the application based on a reactive view of the model.</param>
     let CreatePaged
             (initModel: 'Model)
-            (update: Dispatch<'Message> -> 'Message -> 'Model -> option<'Model>)
+            (update: 'Message -> 'Model -> Action<'Message, 'Model>)
             (render: 'Model -> Page<'Message, 'Model>) =
         let var = Var.Create initModel
         let render (dispatch: Dispatch<'Message>) (view: View<'Model>) =
             Pager<'Message, 'Model>(var, render, dispatch, view).Doc
-        {
-            Init = ignore
-            Var = var
-            View = var.View
-            Update = update
-            Render = render
-        }
+        Create initModel update render
 
     /// <summary>
     /// Create an MVU application using paging.
@@ -234,8 +235,8 @@ module App =
             (initModel: 'Model)
             (update: 'Message -> 'Model -> 'Model)
             (render: 'Model -> Page<'Message, 'Model>) =
-        let update _ msg mdl =
-            Some (update msg mdl)
+        let update msg mdl =
+            SetModel (update msg mdl)
         CreatePaged initModel update render
 
     let private withRouting<'Route, 'Message, 'Model, 'Rendered when 'Route : equality>

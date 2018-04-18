@@ -9,6 +9,14 @@ open WebSharper.UI.Html
 open WebSharper.UI.Templating
 open WebSharper.Mvu
 
+module Remoting =
+
+    [<Rpc>]
+    let SendToServer (entries: Map<string, string>) =
+        async {
+            return Map.count entries
+        }
+
 [<JavaScript>]
 module Client =
     // The templates are loaded from the DOM, so you just can edit index.html
@@ -22,51 +30,47 @@ module Client =
     type Model =
         {
             EndPoint : EndPoint
-            Counter : int
             Entries : Map<string, string>
             Input : string
+            ServerResponse : option<int>
         }
 
     type Message =
         | Goto of EndPoint
-        | Increment
-        | Decrement
         | SetEntry of string * string
         | RemoveEntry of string
+        | SendToServer
+        | ServerReplied of int
 
     let Update (message: Message) (model: Model) =
         match message with
-        | Increment ->
-            { model with Counter = model.Counter + 1 }
-        | Decrement ->
-            { model with Counter = model.Counter - 1 }
         | SetEntry (k, v) ->
-            { model with Entries = Map.add k v model.Entries }
+            SetModel { model with Entries = Map.add k v model.Entries }
         | RemoveEntry k ->
-            { model with
-                Entries = Map.remove k model.Entries
-                EndPoint =
-                    match model.EndPoint with
-                    | EditEntry k' when k = k' -> Home
-                    | ep -> ep
+            SetModel {
+                model with
+                    Entries = Map.remove k model.Entries
+                    EndPoint =
+                        match model.EndPoint with
+                        | EditEntry k' when k = k' -> Home
+                        | ep -> ep
             }
         | Goto ep ->
-            { model with EndPoint = ep }
+            SetModel { model with EndPoint = ep }
+        | SendToServer ->
+            Action.DispatchAsync ServerReplied (Remoting.SendToServer model.Entries)
+        | ServerReplied x ->
+            SetModel { model with ServerResponse = Some x }
 
     module Pages =
 
         let showDate() =
-            p [Attr.Class "hidden"] [text ("Rendered at " + Date().ToTimeString())]
+            p [] [text ("Rendered at " + Date().ToTimeString())]
 
         let Home = Page.Single(attrs = [Attr.Class "home-page"], usesTransition = true, render = fun dispatch model ->
             let inp = input [Attr.Class "input"] []
             Doc.Concat [
                 showDate()
-                div [Attr.Class "hidden"] [
-                    button [on.click (fun _ _ -> dispatch Decrement)] [text "-"]
-                    text (string model.V.Counter)
-                    button [on.click (fun _ _ -> dispatch Increment)] [text "+"]
-                ]
                 h2 [Attr.Class "subtitle hidden"] [text "Entries:"]
                 div [Attr.Class "section"] [
                     div [Attr.Class "field has-addons"] [
@@ -97,6 +101,17 @@ module Client =
                                 ]
                             ]
                         ])
+                ]
+                div [Attr.Class "field"] [
+                    div [Attr.Class "control"] [
+                        button [
+                            Attr.Class "button"
+                            on.click (fun _ _ -> dispatch SendToServer)
+                        ] [text "Send to server"]
+                    ]
+                ]
+                label [Attr.Class "label"] [
+                    text (match model.V.ServerResponse with None -> "" | Some x -> string x)
                 ]
             ])
 
@@ -129,14 +144,14 @@ module Client =
     let InitModel =
         {
             EndPoint = EndPoint.Home
-            Counter = 0
             Entries = Map.empty
             Input = ""
+            ServerResponse = None
         }
 
     [<SPAEntryPoint>]
     let Main () =
-        App.CreateSimplePaged InitModel Update Render
+        App.CreatePaged InitModel Update Render
         |> App.WithLocalStorage "mvu-tests"
         |> App.Run
         |> Doc.RunPrepend JS.Document.Body

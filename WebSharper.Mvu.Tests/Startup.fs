@@ -6,6 +6,7 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
+open WebSharper.AspNetCore
 
 type Startup() =
 
@@ -17,6 +18,7 @@ type Startup() =
 
         app.UseDefaultFiles()
             .UseStaticFiles()
+            .UseWebSharper(env)
             .Run(fun context ->
                 context.Response.StatusCode <- 404
                 context.Response.WriteAsync("Page not found"))
