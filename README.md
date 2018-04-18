@@ -1,8 +1,10 @@
-This library implements an [Elm](https://guide.elm-lang.org/architecture/)-inspired MVU (Model-View-Update) architecture for WebSharper client-side applications.
+# WebSharper.Mvu
+
+WebSharper.Mvu provides an [Elm](https://guide.elm-lang.org/architecture/)-inspired MVU (Model-View-Update) architecture for WebSharper client-side applications.
 
 It is based on [WebSharper.UI](http://developers.websharper.com/docs/v4.x/fs/ui) for its reactivity and HTML rendering.
 
-# The MVU architecture
+## The MVU architecture
 
 Model-View-Update is an application architecture that aims to make the behavior and state of GUIs clear and predictable.
 
@@ -14,11 +16,11 @@ Finally, all changes to the model are applied by a pure **Update** function, whi
 
 [1] Although in WebSharper.Mvu we tend to use the term **Render** instead, to avoid confusion with the WebSharper.UI `View` type.
 
-# Features of WebSharper.Mvu
+## Features of WebSharper.Mvu
 
 WebSharper.Mvu provides a number of features on top of this architecture.
 
-## Time-travel debugging with RemoteDev
+### Time-travel debugging with RemoteDev
 
 WebSharper.Mvu integrates seamlessly with [RemoteDev](https://github.com/zalmoxisus/remotedev). This tool allows you to inspect the successive messages and states of your model, and even to replay old states and see the effect on your view.
 
@@ -34,7 +36,7 @@ App.Create initialModel update render
 
 [Learn more about WebSharper.Mvu and RemoteDev.](docs/remotedev.md)
 
-## Automatic local storage
+### Automatic local storage
 
 WebSharper.Mvu can automatically save the model to the local storage on every change. This allows you to keep the same application state across page refreshes, which is very useful for debugging.
 
@@ -46,7 +48,7 @@ App.Create initialModel update render
 |> App.Run
 ```
 
-## HTML templating
+### HTML templating
 
 WebSharper.Mvu can make use of WebSharper.UI's HTML templating facilities. This reinforces the separation of concerns by keeping the view contained in HTML files. The render function then just connects reactive content and event handlers to the strongly-typed template holes.
 
@@ -54,7 +56,7 @@ Templating also allows you to touch up your view without having to recompile the
 
 [Learn more about WebSharper.UI HTML templating.](http://developers.websharper.com/docs/v4.x/fs/ui#templating)
 
-## Paging
+### Paging
 
 The `Page` type makes it easy to write "multi-page SPAs": applications that are entirely client-side but still logically divided into different pages. It handles parameterized pages and allows using CSS transitions between pages. Pages can specify their DOM behavior, such as keeping elements around to allow for smoother transitions.
 
@@ -91,7 +93,7 @@ let main () =
 
 The transitions are specified as [CSS transitions on the `home-page` and `entry-page` classes](https://github.com/dotnet-websharper/mvu/blob/master/WebSharper.Mvu.Tests/wwwroot/index.html).
 
-## Routing
+### Routing
 
 The page's URL can be easily bound to the application model. The URL scheme is declared using a [WebSharper router](http://developers.websharper.com/docs/v4.x/fs/sitelets#sitelet-infer), and the parsed endpoint value is stored as a field in the model.
 
@@ -109,7 +111,7 @@ App.WithRouting (Router.Infer<EndPoint>()) (fun model -> model.EndPoint) app
 |> App.Run
 ```
 
-# Differences with other MVU libraries
+## Differences with other MVU libraries
 
 The main point that differenciates WebSharper.Mvu from other MVU libraries is the way the render function works.
 
@@ -117,7 +119,7 @@ In most MVU libraries, the view function directly takes a Model value as argumen
 
 In contrast, in WebSharper.Mvu, the render function takes a WebSharper.UI `View<Model>` as argument. It is called only once, and it is this `View` that changes every time the model is updated. This helps make more explicit which parts of the rendered document are static and which parts are reactive.
 
-# Learn more...
+## Learn more...
 
 Try WebSharper.Mvu examples live:
 
