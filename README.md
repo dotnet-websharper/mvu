@@ -48,6 +48,8 @@ App.Create initialModel update render
 |> App.Run
 ```
 
+> If you want to use _both_ local storage and RemoteDev, you must add `App.WithLocalStorage` _before_ `App.WithRemoteDev`, or you will run into problems with RemoteDev.
+
 ### HTML templating
 
 WebSharper.Mvu can make use of WebSharper.UI's HTML templating facilities. This reinforces the separation of concerns by keeping the view contained in HTML files. The render function then just connects reactive content and event handlers to the strongly-typed template holes.
