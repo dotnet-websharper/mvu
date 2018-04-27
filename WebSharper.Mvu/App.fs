@@ -269,13 +269,13 @@ module App =
             (key: string)
             (app: App<_, 'Model, _>) =
         let init() =
-            app.Init()
             match JS.Window.LocalStorage.GetItem(key) with
             | null -> ()
             | v -> 
                 try app.Var.Set <| serializer.Decode (JSON.Parse v)
                 with exn ->
                     Console.Error("Error deserializing state from local storage", exn)
+            app.Init()
         let view =
             app.View.Map(fun v ->
                 JS.Window.LocalStorage.SetItem(key, JSON.Stringify (serializer.Encode v))
