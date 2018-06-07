@@ -1700,6 +1700,12 @@ NUGET
       System.Xml.ReaderWriter (>= 4.3) - restriction: || (&& (== net461) (< net46)) (== netcoreapp2.0) (== netstandard2.0)
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
+    WindowsAzure.Storage (8.1.4) - restriction: || (&& (== net461) (>= netcoreapp2.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp2.0))
+      Microsoft.Data.OData (>= 5.8.2)
+      NETStandard.Library (>= 1.6) - restriction: || (&& (== net461) (< net45)) (== netcoreapp2.0) (== netstandard2.0)
+      Newtonsoft.Json (>= 9.0.1) - restriction: || (&& (== net461) (< net45)) (== netcoreapp2.0) (== netstandard2.0)
+      System.Spatial (>= 5.8.2) - restriction: || (&& (== net461) (< net45)) (== netcoreapp2.0) (== netstandard2.0)
+  remote: https://nuget.intellifactory.com/nuget
     WebSharper (4.2.12.259)
     WebSharper.AspNetCore (4.2.3.63)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0.3)
@@ -1713,11 +1719,6 @@ NUGET
       HtmlAgilityPack (>= 1.7.1)
       System.Xml.XDocument (>= 4.3)
       WebSharper (>= 4.2.11 < 4.3)
-    WindowsAzure.Storage (8.1.4) - restriction: || (&& (== net461) (>= netcoreapp2.0)) (== netcoreapp2.0) (&& (== netstandard2.0) (>= netcoreapp2.0))
-      Microsoft.Data.OData (>= 5.8.2)
-      NETStandard.Library (>= 1.6) - restriction: || (&& (== net461) (< net45)) (== netcoreapp2.0) (== netstandard2.0)
-      Newtonsoft.Json (>= 9.0.1) - restriction: || (&& (== net461) (< net45)) (== netcoreapp2.0) (== netstandard2.0)
-      System.Spatial (>= 5.8.2) - restriction: || (&& (== net461) (< net45)) (== netcoreapp2.0) (== netstandard2.0)
 
 GROUP build
 RESTRICTION: == net45
