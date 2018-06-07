@@ -116,14 +116,14 @@ type Page<'Message, 'Model> =
     static member Single(render, ?attrs, ?keepInDom, ?usesTransition) =
         Page<'Message, 'Model>.Reactive(ignore, (fun () -> render), ?attrs = attrs, ?keepInDom = keepInDom, ?usesTransition = usesTransition)
 
-and [<JavaScript>] internal Pager<'Message, 'Model>(route: Var<'Model>, render: 'Model -> Page<'Message, 'Model>, dispatch: Dispatch<'Message>, model: View<'Model>) as this =
+and [<JavaScript>] internal Pager<'Message, 'Model>(render: 'Model -> Page<'Message, 'Model>, dispatch: Dispatch<'Message>, model: View<'Model>) as this =
     let mutable toRemove = None : option<Elt>
 
     let rec container : WebSharper.UI.Client.EltUpdater =
         let elt =
             div [
                 attr.``class`` "ws-page-container"
-                on.viewUpdate route.View (fun el r ->
+                on.viewUpdate model (fun el r ->
                     let page = render r
                     let elt = page.Render this dispatch model
                     let domElt = elt.Dom
@@ -220,9 +220,8 @@ module App =
             (initModel: 'Model)
             (update: 'Message -> 'Model -> Action<'Message, 'Model>)
             (render: 'Model -> Page<'Message, 'Model>) =
-        let var = Var.Create initModel
         let render (dispatch: Dispatch<'Message>) (view: View<'Model>) =
-            Pager<'Message, 'Model>(var, render, dispatch, view).Doc
+            Pager<'Message, 'Model>(render, dispatch, view).Doc
         Create initModel update render
 
     /// <summary>
