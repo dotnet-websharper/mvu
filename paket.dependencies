@@ -5,12 +5,12 @@ source https://nuget.intellifactory.com/nuget username: "%IF_USER%" password: "%
 framework: net461, netstandard2.0, netcoreapp2.0
 storage: none
 
-nuget FSharp.Core
-nuget Microsoft.AspNetCore.All ~> 2.0.5
-nuget WebSharper
-nuget WebSharper.FSharp
-nuget WebSharper.UI
-nuget WebSharper.AspNetCore
+nuget FSharp.Core ~> 4.2.0
+nuget Microsoft.AspNetCore.All !~> 2.0.0
+nuget WebSharper prerelease
+nuget WebSharper.FSharp prerelease
+nuget WebSharper.UI prerelease
+nuget WebSharper.AspNetCore prerelease
 
 group build
     framework: net45
