@@ -3,5 +3,6 @@
   <dependencies>
     <dependency name="zafir" rev="latest.integration"  />
     <dependency name="zafir.ui" rev="latest.integration"  />
+    <dependency name="zafir.aspnetcore" rev="latest.integration"  />
   </dependencies>
 </ivy-module>
