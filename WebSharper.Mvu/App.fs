@@ -82,7 +82,7 @@ type Page<'Message, 'Model> =
             | false, _ ->
                 let var = Var.Create route
                 let doc =
-                    div [
+                    Elt.div [
                         attr.``class`` "ws-page"
                         (match attrs with Some attrs -> Attr.Concat attrs | None -> Attr.Empty)
                         on.transitionEnd (fun el ev -> pager.RemoveIfNeeded el)
@@ -121,7 +121,7 @@ and [<JavaScript>] internal Pager<'Message, 'Model>(render: 'Model -> Page<'Mess
 
     let rec container : WebSharper.UI.Client.EltUpdater =
         let elt =
-            div [
+            Elt.div [
                 attr.``class`` "ws-page-container"
                 on.viewUpdate model (fun el r ->
                     let page = render r

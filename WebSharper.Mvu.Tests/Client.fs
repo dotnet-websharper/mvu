@@ -68,7 +68,7 @@ module Client =
             p [] [text ("Rendered at " + Date().ToTimeString())]
 
         let Home = Page.Single(attrs = [Attr.Class "home-page"], usesTransition = true, render = fun dispatch model ->
-            let inp = input [Attr.Class "input"] []
+            let inp = Elt.input [Attr.Class "input"] []
             Doc.Concat [
                 showDate()
                 h2 [Attr.Class "subtitle hidden"] [text "Entries:"]
