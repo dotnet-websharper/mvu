@@ -192,8 +192,8 @@ module TodoList =
 /// The entry point of our application, called on page load.
 [<SPAEntryPoint>]
 let Main () =
-    let app = App.CreateSimple TodoList.Model.Empty TodoList.Update TodoList.Render
-    App.WithRouting (Router.Infer()) (fun (model: TodoList.Model) -> model.EndPoint) app
+    App.CreateSimple TodoList.Model.Empty TodoList.Update TodoList.Render
+    |> App.WithRouting (Router.Infer()) (fun (model: TodoList.Model) -> model.EndPoint)
     |> App.WithLocalStorage "todolist"
     |> App.WithRemoteDev (RemoteDev.Options(hostname = "localhost", port = 8000))
     |> App.Run

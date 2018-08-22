@@ -5,6 +5,7 @@
 open WebSharper
 open WebSharper.Core
 open WebSharper.Core.AST
+module I = WebSharper.Core.AST.IgnoreSourcePos
 
 [<AutoOpen>]
 module private Impl =
@@ -31,8 +32,17 @@ module private Impl =
 type WithRouting() =
     inherit Macro()
 
+    let tryGetId (call: MacroCall) e =
+        match e with
+        | I.Var i ->
+            match call.BoundVars.TryGetValue(i) with
+            | true, x -> x, fun r -> MacroUsedBoundVar(i, r)
+            | false, _ -> e, id
+        | _ -> e, id
+
     override this.TranslateCall(call) =
         let [router; getter; app] = call.Arguments
+        let getter, wrap = tryGetId call getter
         match WebSharper.UI.Macros.Lens.MakeSetter call.Compilation getter with
         | MacroOk setter ->
             let tRoute :: ([_; tModel; _] as appTArgs) = call.Method.Generics

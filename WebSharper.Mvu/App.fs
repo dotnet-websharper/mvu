@@ -252,7 +252,6 @@ module App =
 
     /// <summary>
     /// Add URL hash routing to an application's model.
-    /// Note: due to a limitation, you cannot currently pipe into this function.
     /// </summary>
     /// <param name="router">The URL router.</param>
     /// <param name="getRoute">Where the current endpoint is stored in the model. Must be a record field access.</param>
