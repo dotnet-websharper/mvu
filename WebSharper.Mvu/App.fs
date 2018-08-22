@@ -16,7 +16,7 @@ type Dispatch<'Message> = 'Message -> unit
 [<JavaScript>]
 type App<'Message, 'Model, 'Rendered> =
     internal {
-        Init : unit -> unit
+        Init : Dispatch<'Message> -> unit
         Var : Var<'Model>
         View : View<'Model>
         Update : Dispatch<'Message> -> 'Message -> 'Model -> option<'Model>
@@ -186,6 +186,18 @@ module App =
             Some (update msg mdl)
         create initModel update render
 
+    let rec private applyAction dispatch = function
+        | DoNothing -> None
+        | SetModel mdl -> Some mdl
+        | Command f -> f dispatch; None
+        | CommandAsync f -> Async.Start (f dispatch); None
+        | CombinedAction actions ->
+            (None, actions)
+            ||> List.fold (fun newModel action ->
+                applyAction dispatch action
+                |> Option.orElse newModel
+            )
+
     /// <summary>
     /// Create an MVU application.
     /// </summary>
@@ -195,17 +207,6 @@ module App =
     let Create (initModel: 'Model)
             (update: 'Message -> 'Model -> Action<'Message, 'Model>)
             (render: Dispatch<'Message> -> View<'Model> -> 'Rendered) =
-        let rec applyAction dispatch = function
-            | DoNothing -> None
-            | SetModel mdl -> Some mdl
-            | Command f -> f dispatch; None
-            | CommandAsync f -> Async.Start (f dispatch); None
-            | CombinedAction actions ->
-                (None, actions)
-                ||> List.fold (fun newModel action ->
-                    applyAction dispatch action
-                    |> Option.orElse newModel
-                )
         let update dispatch msg mdl =
             update msg mdl |> applyAction dispatch
         create initModel update render
@@ -244,8 +245,8 @@ module App =
             (getRoute: 'Model -> 'Route)
             (app: App<'Message, 'Model, 'Rendered>) =
         { app with
-            Init = fun () ->
-                app.Init()
+            Init = fun dispatch ->
+                app.Init dispatch
                 let defaultRoute = getRoute app.Var.Value
                 Router.InstallHashInto lensedRouter defaultRoute router }
 
@@ -267,14 +268,14 @@ module App =
             (serializer: Serializer<'Model>)
             (key: string)
             (app: App<_, 'Model, _>) =
-        let init() =
+        let init dispatch =
             match JS.Window.LocalStorage.GetItem(key) with
             | null -> ()
             | v -> 
                 try app.Var.Set <| serializer.Decode (JSON.Parse v)
                 with exn ->
                     Console.Error("Error deserializing state from local storage", exn)
-            app.Init()
+            app.Init dispatch
         let view =
             app.View.Map(fun v ->
                 JS.Window.LocalStorage.SetItem(key, JSON.Stringify (serializer.Encode v))
@@ -294,10 +295,18 @@ module App =
     let WithLocalStorage key (app: App<_, 'Model, _>) =
         withLocalStorage Serializer.Typed<'Model> key app
 
+    /// Run the given action on startup.
+    let WithInitAction (action: Action<'Message, 'Model>) (app: App<'Message, 'Model, _>) =
+        let init dispatch =
+            app.Init dispatch
+            applyAction dispatch action
+            |> Option.iter app.Var.Set
+        { app with Init = init }
+
     /// Run the application.
     let Run (app: App<_, _, _>) =
         let rec dispatch msg = app.Var.UpdateMaybe (app.Update dispatch msg)
-        app.Init()
+        app.Init dispatch
         app.Render dispatch app.View
 
     let private withRemoteDev
@@ -336,8 +345,8 @@ module App =
                 )
             | None -> ()
             newModel
-        let init() =
-            app.Init()
+        let init dispatch =
+            app.Init dispatch
             app.View |> View.Get (fun st ->
                 rdev.init(modelSerializer.Encode st)
             )
