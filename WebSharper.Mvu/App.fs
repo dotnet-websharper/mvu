@@ -136,13 +136,13 @@ and [<JavaScript>] internal Pager<'Message, 'Model>(render: 'Model -> Page<'Mess
                             |> ignore
                     domElt.RemoveAttribute("aria-hidden")
                     match toRemove with
-                    | None -> ()
-                    | Some toRemove ->
+                    | Some toRemove when toRemove !==. elt ->
                         if page.UsesTransition then
                             toRemove.Dom?dataset?wsRemoving <- "true"
                         else
                             el.RemoveChild toRemove.Dom |> ignore
                         container.RemoveUpdated toRemove
+                    | _ -> ()
                     if not (el.Contains domElt) then
                         domElt.SetAttribute("aria-hidden", "true")
                         el.AppendChild domElt |> ignore
