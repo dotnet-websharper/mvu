@@ -41,7 +41,9 @@ type Action<'Message, 'Model> =
         | a1, CombinedAction l2 -> CombinedAction (a1 :: l2)
         | a1, a2 -> CombinedAction [a1; a2]
 
-    static member DispatchAsync<'T> (toMessage: 'T -> 'Message) (action: Async<'T>) : Action<'Message, 'Model> =
+[<AutoOpen; JavaScript>]
+module Action =
+    let DispatchAsync (toMessage: 'T -> 'Message) (action: Async<'T>) : Action<'Message, 'Model> =
         CommandAsync (fun dispatch -> async {
             let! res = action
             dispatch (toMessage res)

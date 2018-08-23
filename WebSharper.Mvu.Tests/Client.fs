@@ -58,7 +58,7 @@ module Client =
         | Goto ep ->
             SetModel { model with EndPoint = ep }
         | SendToServer ->
-            Action.DispatchAsync ServerReplied (Remoting.SendToServer model.Entries)
+            DispatchAsync ServerReplied (Remoting.SendToServer model.Entries)
         | ServerReplied x ->
             SetModel { model with ServerResponse = Some x }
 
