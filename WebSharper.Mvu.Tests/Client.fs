@@ -19,9 +19,6 @@ module Remoting =
 
 [<JavaScript>]
 module Client =
-    // The templates are loaded from the DOM, so you just can edit index.html
-    // and refresh your browser, no need to recompile unless you add or remove holes.
-    type IndexTemplate = Template<"wwwroot/index.html", ClientLoad.FromDocument>
 
     type EndPoint =
         | Home
@@ -33,6 +30,7 @@ module Client =
             Entries : Map<string, string>
             Input : string
             ServerResponse : option<int>
+            Counter : int
         }
 
     type Message =
@@ -41,6 +39,7 @@ module Client =
         | RemoveEntry of string
         | SendToServer
         | ServerReplied of int
+        | AddTwoToCounter
 
     let Update (message: Message) (model: Model) =
         match message with
@@ -61,16 +60,30 @@ module Client =
             DispatchAsync ServerReplied (Remoting.SendToServer model.Entries)
         | ServerReplied x ->
             SetModel { model with ServerResponse = Some x }
+        | AddTwoToCounter ->
+            UpdateModel (fun m -> { m with Counter = m.Counter + 1 })
+            +
+            UpdateModel (fun m -> { m with Counter = m.Counter + 1 })
 
     module Pages =
 
         let showDate() =
             p [] [text ("Rendered at " + Date().ToTimeString())]
 
+        let counter dispatch (model: View<Model>) =
+            p [] [
+                text (string model.V.Counter + " ")
+                button [on.click (fun _ _ -> dispatch AddTwoToCounter)] [text "Increment by two"]
+                text " (this tests that UpdateModel works correctly)"
+            ]
+
         let Home = Page.Single(attrs = [Attr.Class "home-page"], usesTransition = true, render = fun dispatch model ->
             let inp = Elt.input [Attr.Class "input"] []
+            let kinp = Elt.input [Attr.Class "input"] []
+            let vinp = Elt.input [Attr.Class "input"] []
             Doc.Concat [
                 showDate()
+                counter dispatch model
                 h2 [Attr.Class "subtitle hidden"] [text "Entries:"]
                 div [Attr.Class "section"] [
                     div [Attr.Class "field has-addons"] [
@@ -79,7 +92,19 @@ module Client =
                             button [
                                 Attr.Class "button"
                                 on.click (fun _ _ -> dispatch (Goto (EndPoint.EditEntry inp.Value)))
-                            ] [text "Add/edit entry"]
+                            ] [text "Go to add/edit entry page"]
+                        ]
+                    ]
+                ]
+                div [Attr.Class "section"] [
+                    div [Attr.Class "field has-addons"] [
+                        div [Attr.Class "control"] [kinp]
+                        div [Attr.Class "control"] [vinp]
+                        div [Attr.Class "control"] [
+                            button [
+                                Attr.Class "button"
+                                on.click (fun _ _ -> dispatch (SetEntry(kinp.Value, vinp.Value)))
+                            ] [text "Directly add/edit entry"]
                         ]
                     ]
                 ]
@@ -147,6 +172,7 @@ module Client =
             Entries = Map.empty
             Input = ""
             ServerResponse = None
+            Counter = 0
         }
 
     [<SPAEntryPoint>]

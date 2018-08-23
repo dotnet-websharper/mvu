@@ -27,12 +27,19 @@ type App<'Message, 'Model, 'Rendered> =
 [<JavaScript>]
 type Action<'Message, 'Model> =
     | DoNothing
+    /// Set the model to the given value.
     | SetModel of 'Model
+    /// Update the model based on the given function.
+    /// Useful if several combined actions need to update the same field.
+    | UpdateModel of ('Model -> 'Model)
+    /// Run the given command synchronously. The command can dispatch subsequent actions.
     | Command of (Dispatch<'Message> -> unit)
+    /// Run the given command asynchronously. The command can dispatch subsequent actions.
     | CommandAsync of (Dispatch<'Message> -> Async<unit>)
+    /// Run several actions in sequence.
     | CombinedAction of list<Action<'Message, 'Model>>
 
-    /// Combine two actions.
+    /// Run several actions in sequence.
     static member (+) (a1: Action<'Message, 'Model>, a2: Action<'Message, 'Model>) =
         match a1, a2 with
         | a, DoNothing | DoNothing, a -> a
@@ -43,6 +50,7 @@ type Action<'Message, 'Model> =
 
 [<AutoOpen; JavaScript>]
 module Action =
+    /// Run the given asynchronous job then dispatch a message based on its result.
     let DispatchAsync (toMessage: 'T -> 'Message) (action: Async<'T>) : Action<'Message, 'Model> =
         CommandAsync (fun dispatch -> async {
             let! res = action
@@ -188,15 +196,16 @@ module App =
             Some (update msg mdl)
         create initModel update render
 
-    let rec private applyAction dispatch = function
+    let rec private applyAction dispatch oldModel = function
         | DoNothing -> None
         | SetModel mdl -> Some mdl
+        | UpdateModel f -> Some (f oldModel)
         | Command f -> f dispatch; None
         | CommandAsync f -> Async.Start (f dispatch); None
         | CombinedAction actions ->
             (None, actions)
             ||> List.fold (fun newModel action ->
-                applyAction dispatch action
+                applyAction dispatch (defaultArg newModel oldModel) action
                 |> Option.orElse newModel
             )
 
@@ -210,7 +219,7 @@ module App =
             (update: 'Message -> 'Model -> Action<'Message, 'Model>)
             (render: Dispatch<'Message> -> View<'Model> -> 'Rendered) =
         let update dispatch msg mdl =
-            update msg mdl |> applyAction dispatch
+            update msg mdl |> applyAction dispatch mdl
         create initModel update render
 
     /// <summary>
@@ -300,7 +309,7 @@ module App =
     let WithInitAction (action: Action<'Message, 'Model>) (app: App<'Message, 'Model, _>) =
         let init dispatch =
             app.Init dispatch
-            applyAction dispatch action
+            applyAction dispatch app.Var.Value action
             |> Option.iter app.Var.Set
         { app with Init = init }
 
