@@ -313,6 +313,10 @@ module App =
             |> Option.iter app.Var.Set
         { app with Init = init }
 
+    /// Dispatch the given message on startup.
+    let WithInitMessage (message: 'Message) (app: App<'Message, 'Model, 'Rendered>) =
+        WithInitAction (Command (fun dispatch -> dispatch message))
+
     /// Run the application.
     let Run (app: App<_, _, _>) =
         let rec dispatch msg = app.Var.UpdateMaybe (app.Update dispatch msg)
