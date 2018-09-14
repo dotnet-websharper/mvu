@@ -1652,19 +1652,19 @@ NUGET
       Newtonsoft.Json (>= 9.0.1) - restriction: || (&& (== net461) (< net45)) (== netcoreapp2.0) (== netstandard2.0)
       System.Spatial (>= 5.8.2) - restriction: || (&& (== net461) (< net45)) (== netcoreapp2.0) (== netstandard2.0)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.5.1.304)
-    WebSharper.AspNetCore (4.5.0.87)
+    WebSharper (4.5.2.308)
+    WebSharper.AspNetCore (4.5.1.93)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0.3)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0.3)
       Microsoft.AspNetCore.Http.Abstractions (>= 2.0.3)
       Microsoft.Extensions.Configuration.Abstractions (>= 2.0.2)
-      WebSharper (>= 4.5.1 < 4.6)
-    WebSharper.FSharp (4.5.1.304)
-      WebSharper (4.5.1.304)
-    WebSharper.UI (4.5.1.141)
+      WebSharper (>= 4.5.2 < 4.6)
+    WebSharper.FSharp (4.5.2.308)
+      WebSharper (4.5.2.308)
+    WebSharper.UI (4.5.1.144)
       HtmlAgilityPack (>= 1.7.1)
       System.Xml.XDocument (>= 4.3)
-      WebSharper (>= 4.5.1 < 4.6)
+      WebSharper (>= 4.5.2 < 4.6)
 
 GROUP build
 RESTRICTION: == net45
