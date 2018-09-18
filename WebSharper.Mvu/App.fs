@@ -315,7 +315,7 @@ module App =
 
     /// Dispatch the given message on startup.
     let WithInitMessage (message: 'Message) (app: App<'Message, 'Model, 'Rendered>) =
-        WithInitAction (Command (fun dispatch -> dispatch message))
+        WithInitAction (Command (fun dispatch -> dispatch message)) app
 
     /// Run the application.
     let Run (app: App<_, _, _>) =
