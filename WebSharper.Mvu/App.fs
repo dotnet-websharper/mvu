@@ -274,6 +274,20 @@ module App =
             (app: App<'Message, 'Model, 'Rendered>) =
         withRouting (app.Var.LensAuto getRoute) router getRoute app
 
+    /// <summary>
+    /// Add URL hash routing to an application's model.
+    /// </summary>
+    /// <param name="router">The URL router.</param>
+    /// <param name="getRoute">How to get the current endpoint from the model.</param>
+    /// <param name="setRoute">How to set the current endpoint in the model.</param>
+    /// <param name="app">The application.</param>
+    let WithCustomRouting<'Route, 'Message, 'Model, 'Rendered when 'Route : equality>
+            (router: WebSharper.Sitelets.Router<'Route>)
+            (getRoute: 'Model -> 'Route)
+            (setRoute: 'Route -> 'Model -> 'Model)
+            (app: App<'Message, 'Model, 'Rendered>) =
+        withRouting (app.Var.Lens getRoute (fun m r -> setRoute r m)) router getRoute app
+
     let private withLocalStorage
             (serializer: Serializer<'Model>)
             (key: string)
