@@ -10,10 +10,10 @@ paket() {
     fi
 }
 
-if [ "$WsUpdate" == "" ]; then
-    paket restore
-else
-    paket update -g wsbuild --no-restore
+if [ "$WsUpdate" != "" ]; then
+    paket update -g wsbuild --no-install
 fi
+
+paket restore
 
 exec paket-files/wsbuild/github.com/dotnet-websharper/build-script/WebSharper.Fake.sh "$@"
