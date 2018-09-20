@@ -1,4 +1,4 @@
-version 5.142.0
+version 5.180.0
 
 source https://api.nuget.org/v3/index.json
 source https://daily.websharper.com/nuget
@@ -6,7 +6,9 @@ framework: net461, netstandard2.0, netcoreapp2.0
 storage: none
 
 nuget FSharp.Core ~> 4.2.0
-nuget Microsoft.AspNetCore.All !~> 2.0.0
+nuget Microsoft.AspNetCore !~> 2.0.0
+nuget Microsoft.AspNetCore.Hosting !~> 2.0.0
+nuget Microsoft.AspNetCore.StaticFiles !~> 2.0.0
 nuget Newtonsoft.Json >= 11.0
 nuget WebSharper prerelease
 nuget WebSharper.FSharp prerelease
@@ -18,7 +20,7 @@ group build
     source https://api.nuget.org/v3/index.json
 
     nuget FAKE
-    nuget Paket.Core 5.141.0
+    nuget Paket.Core 5.180.0
 
 group wsbuild
     git https://github.com/dotnet-websharper/build-script
