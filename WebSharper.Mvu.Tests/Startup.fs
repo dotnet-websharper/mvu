@@ -18,7 +18,6 @@ type Startup() =
 
         app.UseDefaultFiles()
             .UseStaticFiles()
-            .UseWebSharper(env)
             .Run(fun context ->
                 context.Response.StatusCode <- 404
                 context.Response.WriteAsync("Page not found"))

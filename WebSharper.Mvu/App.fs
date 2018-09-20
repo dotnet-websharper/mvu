@@ -257,6 +257,15 @@ module App =
         app.Init dispatch
         app.Render dispatch app.View
 
+    let WithLog
+            (log: 'Message -> 'Model -> unit)
+            (app: App<'Message, 'Model, _>) =
+        let update dispatch msg model =
+            let newModel = app.Update dispatch msg model
+            log msg (defaultArg newModel model)
+            newModel
+        { app with Update = update }
+
     let private withRemoteDev
             (msgSerializer: Serializer<'Message>)
             (modelSerializer: Serializer<'Model>)

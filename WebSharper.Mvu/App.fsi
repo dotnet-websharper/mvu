@@ -142,6 +142,11 @@ module App =
        -> render: ('Model -> Page<'Message, 'Model>)
        -> App<'Message, 'Model, Doc>
 
+    /// Run the application.
+    val Run<'Message, 'Model, 'Rendered>
+        : app: App<'Message, 'Model, 'Rendered>
+       -> 'Rendered
+
     /// <summary>
     /// Add URL hash routing to an application's model.
     /// </summary>
@@ -195,18 +200,19 @@ module App =
        -> app: App<'Message, 'Model, 'Rendered>
        -> App<'Message, 'Model, 'Rendered>
 
-    /// Run the application.
-    val Run<'Message, 'Model, 'Rendered>
-        : app: App<'Message, 'Model, 'Rendered>
-       -> 'Rendered
-
     /// <summary>
     /// Add RemoteDev capability to the application.
     /// Allows inspecting the model's history and time-travel debugging.
     /// </summary>
     /// <param name="options">The RemoteDev options</param>
     /// <param name="app">The application</param>
-    val WithRemoteDev
+    val WithRemoteDev<'Message, 'Model, 'Rendered>
         : options: RemoteDev.Options
+       -> app: App<'Message, 'Model, 'Rendered>
+       -> App<'Message, 'Model, 'Rendered>
+
+    /// Call this function on every update with the message and the new model.
+    val WithLog<'Message, 'Model, 'Rendered>
+        : log: ('Message -> 'Model -> unit)
        -> app: App<'Message, 'Model, 'Rendered>
        -> App<'Message, 'Model, 'Rendered>

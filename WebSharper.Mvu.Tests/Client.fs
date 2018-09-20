@@ -33,12 +33,13 @@ module Client =
             Counter : int
         }
 
+    [<NamedUnionCases "type">]
     type Message =
-        | Goto of EndPoint
-        | SetEntry of string * string
-        | RemoveEntry of string
+        | Goto of endpoint: EndPoint
+        | SetEntry of key: string * value: string
+        | RemoveEntry of key: string
         | SendToServer
-        | ServerReplied of int
+        | ServerReplied of response: int
         | AddTwoToCounter
 
     let Update (message: Message) (model: Model) =
@@ -179,5 +180,8 @@ module Client =
     let Main () =
         App.CreatePaged InitModel Update Render
         |> App.WithLocalStorage "mvu-tests"
+        |> App.WithLog (fun msg model ->
+            New ["msg" => Json.Encode msg; "model" => Json.Encode model]
+            |> Console.Log)
         |> App.Run
         |> Doc.RunPrepend JS.Document.Body
