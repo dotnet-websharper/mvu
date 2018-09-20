@@ -9,10 +9,8 @@ open WebSharper.UI
 open WebSharper.UI.Html
 open WebSharper.UI.Client
 
-/// A function that dispatches a message to the update function.
 type Dispatch<'Message> = 'Message -> unit
 
-/// An MVU application.
 [<JavaScript>]
 type App<'Message, 'Model, 'Rendered> =
     internal {
@@ -23,23 +21,15 @@ type App<'Message, 'Model, 'Rendered> =
         Render : Dispatch<'Message> -> View<'Model> -> 'Rendered
     }
 
-/// An action to take as a result of the Update function.
 [<JavaScript>]
 type Action<'Message, 'Model> =
     | DoNothing
-    /// Set the model to the given value.
     | SetModel of 'Model
-    /// Update the model based on the given function.
-    /// Useful if several combined actions need to update the same field.
     | UpdateModel of ('Model -> 'Model)
-    /// Run the given command synchronously. The command can dispatch subsequent actions.
     | Command of (Dispatch<'Message> -> unit)
-    /// Run the given command asynchronously. The command can dispatch subsequent actions.
     | CommandAsync of (Dispatch<'Message> -> Async<unit>)
-    /// Run several actions in sequence.
     | CombinedAction of list<Action<'Message, 'Model>>
 
-    /// Run several actions in sequence.
     static member (+) (a1: Action<'Message, 'Model>, a2: Action<'Message, 'Model>) =
         match a1, a2 with
         | a, DoNothing | DoNothing, a -> a
@@ -66,18 +56,10 @@ type Page<'Message, 'Model> =
         UsesTransition: bool
     }
 
-    /// <summary>
-    /// Create a reactive page.
-    /// </summary>
-    /// <param name="key">Get the identifier of the current endpoint. A new instance of the page is only created for different values of the key.</param>
-    /// <param name="render">Render the page itself.</param>
-    /// <param name="attrs">Attributes to add to the wrapping div.</param>
-    /// <param name="keepInDom">If true, don't remove the page from the DOM when hidden.</param>
-    /// <param name="usesTransition">Pass true if this page uses CSS transitions to appear and disappear.</param>
     static member Reactive
         (
             key: 'EndPointArgs -> 'K,
-            render: 'K -> Dispatch<'Message> -> View<'Model> -> #Doc,
+            render: 'K -> Dispatch<'Message> -> View<'Model> -> Doc,
             ?attrs: seq<Attr>,
             ?keepInDom: bool,
             ?usesTransition: bool
@@ -106,25 +88,11 @@ type Page<'Message, 'Model> =
                 UsesTransition = defaultArg usesTransition false
             } : Page<'Message, 'Model>
 
-    /// <summary>
-    /// Create a reactive page. A new instance of the page is created for different values of the endpoint args.
-    /// </summary>
-    /// <param name="render">Render the page itself.</param>
-    /// <param name="attrs">Attributes to add to the wrapping div.</param>
-    /// <param name="keepInDom">If true, don't remove the page from the DOM when hidden.</param>
-    /// <param name="usesTransition">Pass true if this page uses CSS transitions to appear and disappear.</param>
     static member Create(render, ?attrs, ?keepInDom, ?usesTransition) : 'EndPointArgs -> _ =
         Page<'Message, 'Model>.Reactive(id, render, ?attrs = attrs, ?keepInDom = keepInDom, ?usesTransition = usesTransition)
 
-    /// <summary>
-    /// Create a reactive page. A single instance of the page is (lazily) created.
-    /// </summary>
-    /// <param name="render">Render the page itself.</param>
-    /// <param name="attrs">Attributes to add to the wrapping div.</param>
-    /// <param name="keepInDom">If true, don't remove the page from the DOM when hidden.</param>
-    /// <param name="usesTransition">Pass true if this page uses CSS transitions to appear and disappear.</param>
     static member Single(render, ?attrs, ?keepInDom, ?usesTransition) =
-        Page<'Message, 'Model>.Reactive(ignore, (fun () -> render), ?attrs = attrs, ?keepInDom = keepInDom, ?usesTransition = usesTransition)
+        Page<'Message, 'Model>.Reactive((fun () -> ()), (fun () -> render), ?attrs = attrs, ?keepInDom = keepInDom, ?usesTransition = usesTransition)
 
 and [<JavaScript>] internal Pager<'Message, 'Model>(render: 'Model -> Page<'Message, 'Model>, dispatch: Dispatch<'Message>, model: View<'Model>) as this =
     let mutable toRemove = None : option<Elt>
@@ -168,7 +136,6 @@ and [<JavaScript>] internal Pager<'Message, 'Model>(render: 'Model -> Page<'Mess
 
     member __.Doc = container :> Doc
 
-/// Bring together the Model-View-Update system and augment it with extra capabilities.
 [<JavaScript>]
 module App =
 
@@ -182,13 +149,7 @@ module App =
             Render = render
         }
 
-    /// <summary>
-    /// Create an MVU application.
-    /// </summary>
-    /// <param name="initModel">The initial value of the model.</param>
-    /// <param name="update">Computes the new model on every message.</param>
-    /// <param name="render">Renders the application based on a reactive view of the model.</param>
-    let CreateSimple
+    let CreateSimple<'Message, 'Model, 'Rendered>
             (initModel: 'Model)
             (update: 'Message -> 'Model -> 'Model)
             (render: Dispatch<'Message> -> View<'Model> -> 'Rendered) =
@@ -209,26 +170,15 @@ module App =
                 |> Option.orElse newModel
             )
 
-    /// <summary>
-    /// Create an MVU application.
-    /// </summary>
-    /// <param name="initModel">The initial value of the model.</param>
-    /// <param name="update">Computes the new model and/or dispatches commands on every message.</param>
-    /// <param name="render">Renders the application based on a reactive view of the model.</param>
-    let Create (initModel: 'Model)
+    let Create<'Message, 'Model, 'Rendered>
+            (initModel: 'Model)
             (update: 'Message -> 'Model -> Action<'Message, 'Model>)
             (render: Dispatch<'Message> -> View<'Model> -> 'Rendered) =
         let update dispatch msg mdl =
             update msg mdl |> applyAction dispatch mdl
         create initModel update render
 
-    /// <summary>
-    /// Create an MVU application using paging.
-    /// </summary>
-    /// <param name="initModel">The initial value of the model.</param>
-    /// <param name="update">Computes the new model and/or dispatches commands on every message.</param>
-    /// <param name="render">Renders the application based on a reactive view of the model.</param>
-    let CreatePaged
+    let CreatePaged<'Message, 'Model>
             (initModel: 'Model)
             (update: 'Message -> 'Model -> Action<'Message, 'Model>)
             (render: 'Model -> Page<'Message, 'Model>) =
@@ -236,13 +186,7 @@ module App =
             Pager<'Message, 'Model>(render, dispatch, view).Doc
         Create initModel update render
 
-    /// <summary>
-    /// Create an MVU application using paging.
-    /// </summary>
-    /// <param name="initModel">The initial value of the model.</param>
-    /// <param name="update">Computes the new model on every message.</param>
-    /// <param name="render">Renders the application based on a reactive view of the model.</param>
-    let CreateSimplePaged
+    let CreateSimplePaged<'Message, 'Model>
             (initModel: 'Model)
             (update: 'Message -> 'Model -> 'Model)
             (render: 'Model -> Page<'Message, 'Model>) =
@@ -261,12 +205,6 @@ module App =
                 let defaultRoute = getRoute app.Var.Value
                 Router.InstallHashInto lensedRouter defaultRoute router }
 
-    /// <summary>
-    /// Add URL hash routing to an application's model.
-    /// </summary>
-    /// <param name="router">The URL router.</param>
-    /// <param name="getRoute">Where the current endpoint is stored in the model. Must be a record field access.</param>
-    /// <param name="app">The application.</param>
     [<Macro(typeof<Macros.WithRouting>)>]
     let WithRouting<'Route, 'Message, 'Model, 'Rendered when 'Route : equality>
             (router: WebSharper.Sitelets.Router<'Route>)
@@ -274,13 +212,6 @@ module App =
             (app: App<'Message, 'Model, 'Rendered>) =
         withRouting (app.Var.LensAuto getRoute) router getRoute app
 
-    /// <summary>
-    /// Add URL hash routing to an application's model.
-    /// </summary>
-    /// <param name="router">The URL router.</param>
-    /// <param name="getRoute">How to get the current endpoint from the model.</param>
-    /// <param name="setRoute">How to set the current endpoint in the model.</param>
-    /// <param name="app">The application.</param>
     let WithCustomRouting<'Route, 'Message, 'Model, 'Rendered when 'Route : equality>
             (router: WebSharper.Sitelets.Router<'Route>)
             (getRoute: 'Model -> 'Route)
@@ -307,19 +238,10 @@ module App =
             )
         { app with View = view; Init = init }
 
-    /// <summary>
-    /// Add Local Storage capability to the application.
-    /// On startup, load the model from local storage at the given key,
-    /// or keep the initial model if there is nothing stored yet.
-    /// On every update, store the model in local storage.
-    /// </summary>
-    /// <param name="key">The local storage key</param>
-    /// <param name="app">The application</param>
     [<Inline>]
     let WithLocalStorage key (app: App<_, 'Model, _>) =
         withLocalStorage Serializer.Typed<'Model> key app
 
-    /// Run the given action on startup.
     let WithInitAction (action: Action<'Message, 'Model>) (app: App<'Message, 'Model, _>) =
         let init dispatch =
             app.Init dispatch
@@ -327,11 +249,9 @@ module App =
             |> Option.iter app.Var.Set
         { app with Init = init }
 
-    /// Dispatch the given message on startup.
     let WithInitMessage (message: 'Message) (app: App<'Message, 'Model, 'Rendered>) =
         WithInitAction (Command (fun dispatch -> dispatch message)) app
 
-    /// Run the application.
     let Run (app: App<_, _, _>) =
         let rec dispatch msg = app.Var.UpdateMaybe (app.Update dispatch msg)
         app.Init dispatch
@@ -380,12 +300,6 @@ module App =
             )
         { app with Init = init; Update = update }
 
-    /// <summary>
-    /// Add RemoteDev capability to the application.
-    /// Allows inspecting the model's history and time-travel debugging.
-    /// </summary>
-    /// <param name="options">The RemoteDev options</param>
-    /// <param name="app">The application</param>
     [<Inline>]
     let WithRemoteDev options (app: App<'Message, 'Model, _>) =
         withRemoteDev Serializer.Typed<'Message> Serializer.Typed<'Model> options app
