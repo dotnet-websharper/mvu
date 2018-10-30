@@ -684,19 +684,19 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.5.4.317)
-    WebSharper.AspNetCore (4.5.2.96)
+    WebSharper (4.5.5.319)
+    WebSharper.AspNetCore (4.5.2.100)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0.3)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0.3)
       Microsoft.AspNetCore.Http.Abstractions (>= 2.0.3)
       Microsoft.Extensions.Configuration.Abstractions (>= 2.0.2)
-      WebSharper (>= 4.5.4 < 4.6)
-    WebSharper.FSharp (4.5.4.317)
-      WebSharper (4.5.4.317)
-    WebSharper.UI (4.5.4.151)
+      WebSharper (>= 4.5.5 < 4.6)
+    WebSharper.FSharp (4.5.5.319)
+      WebSharper (4.5.5.319)
+    WebSharper.UI (4.5.5.155)
       HtmlAgilityPack (>= 1.7.1)
       System.Xml.XDocument (>= 4.3)
-      WebSharper (>= 4.5.4 < 4.6)
+      WebSharper (>= 4.5.5 < 4.6)
 
 GROUP build
 RESTRICTION: == net45
@@ -720,4 +720,4 @@ GROUP wsbuild
 
 GIT
   remote: https://github.com/dotnet-websharper/build-script
-     (e000569985e43f3129ad07b2f559314d080cfa9e)
+     (b55fa7868cffa5dd74ac8bc13b053567f7991add)
