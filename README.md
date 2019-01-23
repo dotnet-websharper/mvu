@@ -130,6 +130,11 @@ Try WebSharper.Mvu examples live:
 * [Paging](http://try.websharper.com/snippet/loic.denuziere/0000Kc)
 * [TodoMVC](http://try.websharper.com/#/snippet/loic.denuziere/0000Kj)
 
+Sample repositories:
+
+* [TodoMVC](https://github.com/websharper-samples/Mvu)
+* [CRUD client](https://github.com/websharper-samples/PeopleClient)
+
 Learn more about WebSharper:
 
 * [WebSharper](https://websharper.com)
