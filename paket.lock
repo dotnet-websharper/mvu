@@ -26,7 +26,7 @@ NUGET
       System.Threading.Thread (>= 4.0) - restriction: || (&& (== net461) (< net45) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
       System.Threading.ThreadPool (>= 4.0.10) - restriction: || (&& (== net461) (< net45) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
       System.Threading.Timer (>= 4.0.1) - restriction: || (&& (== net461) (< net45) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
-    HtmlAgilityPack (1.9)
+    HtmlAgilityPack (1.9.2)
       System.Net.Http (>= 4.3.2) - restriction: || (&& (== net461) (< net40) (>= netstandard2.0)) (== netcoreapp2.0) (== netstandard2.0)
       System.Xml.XmlDocument (>= 4.3) - restriction: || (&& (== net461) (< net40)) (== netcoreapp2.0) (== netstandard2.0)
       System.Xml.XPath (>= 4.3) - restriction: || (&& (== net461) (< net40)) (== netcoreapp2.0) (== netstandard2.0)
@@ -684,7 +684,7 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.5.8.326)
+    WebSharper (4.5.10.332)
       FSharp.Core (>= 4.2.3)
     WebSharper.AspNetCore (4.5.3.104)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0.3)
@@ -692,12 +692,12 @@ NUGET
       Microsoft.AspNetCore.Http.Abstractions (>= 2.0.3)
       Microsoft.Extensions.Configuration.Abstractions (>= 2.0.2)
       WebSharper (>= 4.5.8 < 4.6)
-    WebSharper.FSharp (4.5.8.326)
-      WebSharper (4.5.8.326)
-    WebSharper.UI (4.5.7.159)
+    WebSharper.FSharp (4.5.10.332)
+      WebSharper (4.5.10.332)
+    WebSharper.UI (4.5.9.164)
       HtmlAgilityPack (>= 1.7.1)
       System.Xml.XDocument (>= 4.3)
-      WebSharper (>= 4.5.8 < 4.6)
+      WebSharper (>= 4.5.10 < 4.6)
 
 GROUP build
 RESTRICTION: == net45
