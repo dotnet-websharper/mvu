@@ -26,7 +26,7 @@ NUGET
       System.Threading.Thread (>= 4.0) - restriction: || (&& (== net461) (< net45) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
       System.Threading.ThreadPool (>= 4.0.10) - restriction: || (&& (== net461) (< net45) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
       System.Threading.Timer (>= 4.0.1) - restriction: || (&& (== net461) (< net45) (>= netstandard1.6)) (== netcoreapp2.0) (== netstandard2.0)
-    HtmlAgilityPack (1.11.4)
+    HtmlAgilityPack (1.11.12)
       System.Net.Http (>= 4.3.2) - restriction: || (&& (== net461) (< net40) (>= netstandard2.0)) (== netcoreapp2.0) (== netstandard2.0)
       System.Xml.XmlDocument (>= 4.3) - restriction: || (&& (== net461) (< net40)) (== netcoreapp2.0) (== netstandard2.0)
       System.Xml.XPath (>= 4.3) - restriction: || (&& (== net461) (< net40)) (== netcoreapp2.0) (== netstandard2.0)
@@ -684,20 +684,20 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.5.12.336)
+    WebSharper (4.5.15.342)
       FSharp.Core (>= 4.2.3)
-    WebSharper.AspNetCore (4.5.4.106)
+    WebSharper.AspNetCore (4.5.4.107)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0.3)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0.3)
       Microsoft.AspNetCore.Http.Abstractions (>= 2.0.3)
       Microsoft.Extensions.Configuration.Abstractions (>= 2.0.2)
-      WebSharper (>= 4.5.12 < 4.6)
-    WebSharper.FSharp (4.5.12.336)
-      WebSharper (4.5.12.336)
-    WebSharper.UI (4.5.11.174)
+      WebSharper (>= 4.5.15 < 4.6)
+    WebSharper.FSharp (4.5.15.342)
+      WebSharper (4.5.15.342)
+    WebSharper.UI (4.5.12.177)
       HtmlAgilityPack (>= 1.7.1)
       System.Xml.XDocument (>= 4.3)
-      WebSharper (>= 4.5.12 < 4.6)
+      WebSharper (>= 4.5.15 < 4.6)
 
 GROUP build
 RESTRICTION: == net45
@@ -721,4 +721,4 @@ GROUP wsbuild
 
 GIT
   remote: https://github.com/dotnet-websharper/build-script
-     (5c3a96b8a50f712c0d0301b5178860c1fe1543af)
+     (951f1db60fdbe057a5b96f0012dab0633922bb32)
