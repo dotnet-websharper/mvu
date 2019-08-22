@@ -684,20 +684,20 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.5.15.342)
+    WebSharper (4.5.16.344)
       FSharp.Core (>= 4.2.3)
-    WebSharper.AspNetCore (4.5.4.107)
+    WebSharper.AspNetCore (4.5.4.109)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0.3)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0.3)
       Microsoft.AspNetCore.Http.Abstractions (>= 2.0.3)
       Microsoft.Extensions.Configuration.Abstractions (>= 2.0.2)
-      WebSharper (>= 4.5.15 < 4.6)
-    WebSharper.FSharp (4.5.15.342)
-      WebSharper (4.5.15.342)
-    WebSharper.UI (4.5.12.177)
+      WebSharper (>= 4.5.16 < 4.6)
+    WebSharper.FSharp (4.5.16.344)
+      WebSharper (4.5.16.344)
+    WebSharper.UI (4.5.12.178)
       HtmlAgilityPack (>= 1.7.1)
       System.Xml.XDocument (>= 4.3)
-      WebSharper (>= 4.5.15 < 4.6)
+      WebSharper (>= 4.5.16 < 4.6)
 
 GROUP build
 RESTRICTION: == net45
