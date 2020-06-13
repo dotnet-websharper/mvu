@@ -604,19 +604,19 @@ NUGET
       Microsoft.NETCore.Targets (>= 1.1) - restriction: || (&& (== net461) (>= dnxcore50)) (&& (== net461) (< net451)) (== netcoreapp2.0) (== netstandard2.0)
       System.Runtime (>= 4.3) - restriction: || (&& (== net461) (>= dnxcore50)) (&& (== net461) (< net451)) (== netcoreapp2.0) (== netstandard2.0)
   remote: https://daily.websharper.com/nuget
-    WebSharper (4.6.4.404)
+    WebSharper (4.6.5.406)
       FSharp.Core (>= 4.2.3)
-    WebSharper.AspNetCore (4.6.1.133)
+    WebSharper.AspNetCore (4.6.1.135)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Http.Abstractions (>= 2.0)
       Microsoft.Extensions.Configuration.Abstractions (>= 2.0)
-      WebSharper (>= 4.6.4 < 4.7)
-    WebSharper.FSharp (4.6.4.404)
-      WebSharper (4.6.4.404)
-    WebSharper.UI (4.6.3.217)
+      WebSharper (>= 4.6.5 < 4.7)
+    WebSharper.FSharp (4.6.5.406)
+      WebSharper (4.6.5.406)
+    WebSharper.UI (4.6.3.219)
       HtmlAgilityPack (>= 1.7.1)
-      WebSharper (>= 4.6.4 < 4.7)
+      WebSharper (>= 4.6.5 < 4.7)
 
 GROUP build
 RESTRICTION: == net45
