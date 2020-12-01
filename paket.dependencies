@@ -2,18 +2,13 @@ version 5.180.0
 
 source https://api.nuget.org/v3/index.json
 source https://daily.websharper.com/nuget
-framework: net461, netstandard2.0, netcoreapp2.0
+framework: net461, netstandard2.0
 storage: none
 
-nuget FSharp.Core ~> 4.2.0
-nuget Microsoft.AspNetCore !~> 2.0.0
-nuget Microsoft.AspNetCore.Hosting !~> 2.0.0
-nuget Microsoft.AspNetCore.StaticFiles !~> 2.0.0
-nuget Newtonsoft.Json >= 11.0
+nuget FSharp.Core 4.2.3
 nuget WebSharper prerelease
 nuget WebSharper.FSharp prerelease
 nuget WebSharper.UI prerelease
-nuget WebSharper.AspNetCore prerelease
 
 group build
     framework: net45
@@ -24,3 +19,18 @@ group build
 
 group wsbuild
     git https://github.com/dotnet-websharper/build-script
+
+group test
+    source https://api.nuget.org/v3/index.json
+    source https://daily.websharper.com/nuget
+    framework: netcoreapp2.0
+    storage: none
+
+    nuget Microsoft.AspNetCore !~> 2.0.0
+    nuget Microsoft.AspNetCore.Hosting !~> 2.0.0
+    nuget Microsoft.AspNetCore.StaticFiles !~> 2.0.0
+    nuget Newtonsoft.Json >= 11.0
+    nuget WebSharper prerelease
+    nuget WebSharper.FSharp prerelease
+    nuget WebSharper.UI prerelease
+    nuget WebSharper.AspNetCore prerelease
