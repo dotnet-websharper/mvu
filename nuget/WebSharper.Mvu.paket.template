@@ -16,5 +16,5 @@ files
     ../WebSharper.Mvu/bin/Release/netstandard2.0/WebSharper.Mvu.dll ==> lib/netstandard2.0
     ../WebSharper.Mvu/bin/Release/netstandard2.0/WebSharper.Mvu.xml ==> lib/netstandard2.0
 dependencies
-        WebSharper ~> LOCKEDVERSION/3
-        WebSharper.UI ~> LOCKEDVERSION/3
+        WebSharper ~> LOCKEDVERSION:[3]
+        WebSharper.UI ~> LOCKEDVERSION:[3]
