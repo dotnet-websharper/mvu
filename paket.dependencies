@@ -1,14 +1,14 @@
 
 source https://api.nuget.org/v3/index.json
 source https://daily.websharper.com/nuget
-framework: net461, netstandard2.0
+framework: netstandard2.0
 strategy: min
 storage: none
 
-nuget FSharp.Core 4.2.3
-nuget WebSharper ~> 4.7
-nuget WebSharper.FSharp ~> 4.7
-nuget WebSharper.UI ~> 4.7
+nuget FSharp.Core 5.0.0
+nuget WebSharper prerelease
+nuget WebSharper.FSharp prerelease
+nuget WebSharper.UI prerelease
 
 group wsbuild
     git https://github.com/dotnet-websharper/build-script dotnettool
@@ -16,14 +16,14 @@ group wsbuild
 group test
     source https://api.nuget.org/v3/index.json
     source https://daily.websharper.com/nuget
-    framework: netcoreapp2.0
+    framework: net5.0
     storage: none
 
     nuget Microsoft.AspNetCore !~> 2.0.0
     nuget Microsoft.AspNetCore.Hosting !~> 2.0.0
     nuget Microsoft.AspNetCore.StaticFiles !~> 2.0.0
     nuget Newtonsoft.Json >= 11.0
-    nuget WebSharper ~> 4.7
-    nuget WebSharper.FSharp ~> 4.7
-    nuget WebSharper.UI ~> 4.7
-    nuget WebSharper.AspNetCore ~> 4.7
+    nuget WebSharper prerelease
+    nuget WebSharper.FSharp prerelease
+    nuget WebSharper.UI prerelease
+    nuget WebSharper.AspNetCore prerelease
