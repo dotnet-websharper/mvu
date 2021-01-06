@@ -1,7 +1,7 @@
 
 source https://api.nuget.org/v3/index.json
 source https://daily.websharper.com/nuget
-framework: netstandard2.0
+framework: netstandard2.0, net5.0
 strategy: min
 storage: none
 
