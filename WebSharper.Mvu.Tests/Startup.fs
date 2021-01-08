@@ -25,14 +25,14 @@ open Microsoft.AspNetCore.Hosting
 open Microsoft.AspNetCore.Http
 open Microsoft.Extensions.Configuration
 open Microsoft.Extensions.DependencyInjection
-open WebSharper.AspNetCore
+open Microsoft.Extensions.Hosting
 
 type Startup() =
 
     member this.ConfigureServices(services: IServiceCollection) =
         ()
 
-    member this.Configure(app: IApplicationBuilder, env: IHostingEnvironment) =
+    member this.Configure(app: IApplicationBuilder, env: IWebHostEnvironment) =
         if env.IsDevelopment() then app.UseDeveloperExceptionPage() |> ignore
 
         app.UseDefaultFiles()

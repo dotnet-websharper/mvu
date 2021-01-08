@@ -26,4 +26,3 @@ group test
     nuget WebSharper prerelease
     nuget WebSharper.FSharp prerelease
     nuget WebSharper.UI prerelease
-    nuget WebSharper.AspNetCore prerelease
