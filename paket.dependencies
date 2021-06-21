@@ -6,9 +6,12 @@ strategy: min
 storage: none
 
 nuget FSharp.Core 4.2.3
-nuget WebSharper ~> 4.7
-nuget WebSharper.FSharp ~> 4.7
-nuget WebSharper.UI ~> 4.7
+nuget WebSharper prerelease
+nuget WebSharper.FSharp prerelease
+nuget WebSharper.UI prerelease
+nuget HtmlAgilityPack 1.11.0
+nuget System.Net.Http 4.3.2
+nuget Microsoft.NETCore.Platforms 1.1.0
 
 group wsbuild
     git https://github.com/dotnet-websharper/build-script dotnettool
@@ -23,7 +26,7 @@ group test
     nuget Microsoft.AspNetCore.Hosting !~> 2.0.0
     nuget Microsoft.AspNetCore.StaticFiles !~> 2.0.0
     nuget Newtonsoft.Json >= 11.0
-    nuget WebSharper ~> 4.7
-    nuget WebSharper.FSharp ~> 4.7
-    nuget WebSharper.UI ~> 4.7
-    nuget WebSharper.AspNetCore ~> 4.7
+    nuget WebSharper prerelease
+    nuget WebSharper.FSharp prerelease
+    nuget WebSharper.UI prerelease
+    nuget WebSharper.AspNetCore prerelease
