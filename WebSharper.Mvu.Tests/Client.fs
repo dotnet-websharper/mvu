@@ -21,7 +21,6 @@ namespace WebSharper.Mvu.Tests
 
 open WebSharper
 open WebSharper.JavaScript
-open WebSharper.JQuery
 open WebSharper.UI
 open WebSharper.UI.Client
 open WebSharper.UI.Html

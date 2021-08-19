@@ -178,8 +178,8 @@ module TodoList =
                 |> List.filter (fun e -> not e.IsCompleted)
                 |> List.length)
         MasterTemplate()
-            .Entries(
-                V(state.V.Entries).DocSeqCached(Entry.KeyOf, fun key (entry: View<Entry.Model>) ->
+            .Entries( (* V(state.V.Entries) *)
+                state.Map(fun x -> x.Entries).DocSeqCached(Entry.KeyOf, fun key (entry: View<Entry.Model>) ->
                     let entryDispatch msg = dispatch (EntryMessage (key, msg))
                     Entry.Render entryDispatch (V state.V.EndPoint) entry
                 )
@@ -213,6 +213,6 @@ module TodoList =
 let Main () =
     App.CreateSimple TodoList.Model.Empty TodoList.Update TodoList.Render
     |> App.WithRouting (Router.Infer()) (fun (model: TodoList.Model) -> model.EndPoint)
-    |> App.WithLocalStorage "todolist"
+    // |> App.WithLocalStorage "todolist"
     |> App.WithRemoteDev (RemoteDev.Options(hostname = "localhost", port = 8000))
     |> App.Run
