@@ -1,30 +1,31 @@
-
 source https://api.nuget.org/v3/index.json
-source https://daily.websharper.com/nuget
-framework: net461, netstandard2.0
-strategy: min
-storage: none
+source https://nuget.pkg.github.com/dotnet-websharper/index.json
+source ../localnuget
 
-nuget FSharp.Core 4.2.3
+framework: netstandard2.0, netcoreapp2.1, netcoreapp3.1, net5.0
+
+storage: none
+strategy: min
+
+nuget FSharp.Core
 nuget WebSharper prerelease
 nuget WebSharper.FSharp prerelease
 nuget WebSharper.UI prerelease
-nuget HtmlAgilityPack 1.11.0
-nuget System.Net.Http 4.3.2
-nuget Microsoft.NETCore.Platforms 1.1.0
 
 group wsbuild
-    git https://github.com/dotnet-websharper/build-script dotnettool
+    git https://github.com/dotnet-websharper/build-script websharper50
+
 
 group test
     source https://api.nuget.org/v3/index.json
-    source https://daily.websharper.com/nuget
-    framework: netcoreapp2.0
+    source https://nuget.pkg.github.com/dotnet-websharper/index.json
+    source ../localnuget
+    framework: net50
     storage: none
 
-    nuget Microsoft.AspNetCore !~> 2.0.0
-    nuget Microsoft.AspNetCore.Hosting !~> 2.0.0
-    nuget Microsoft.AspNetCore.StaticFiles !~> 2.0.0
+    nuget Microsoft.AspNetCore
+    nuget Microsoft.AspNetCore.Hosting
+    nuget Microsoft.AspNetCore.StaticFiles
     nuget Newtonsoft.Json >= 11.0
     nuget WebSharper prerelease
     nuget WebSharper.FSharp prerelease
