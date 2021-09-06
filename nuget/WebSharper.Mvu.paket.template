@@ -6,7 +6,6 @@ projectUrl https://websharper.com/
 repositoryType git
 repositoryUrl https://github.com/dotnet-websharper/mvu/
 licenseUrl https://github.com/dotnet-websharper/mvu/blob/master/LICENSE.md
-licenseExpression Apache-2.0
 iconUrl https://github.com/dotnet-websharper/core/raw/websharper50/tools/WebSharper.png
 description
     Model-View-Update architecture for WebSharper
