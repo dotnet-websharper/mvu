@@ -9,6 +9,7 @@
 #r "nuget: Paket.Core"
 #else
 #r "paket:
+nuget FSharp.Core 5.0.0
 nuget FAKE.Core
 nuget Fake.Core.Target
 nuget Fake.IO.FileSystem
@@ -16,7 +17,7 @@ nuget Fake.Tools.Git
 nuget Fake.DotNet.Cli
 nuget Fake.DotNet.AssemblyInfoFile
 nuget Fake.DotNet.Paket
-nuget Paket.Core //"
+nuget Paket.Core prerelease //"
 #endif
 
 #load "paket-files/wsbuild/github.com/dotnet-websharper/build-script/WebSharper.Fake.fsx"
