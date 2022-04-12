@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>net60</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <WebSharperProject>Bundle</WebSharperProject>
     <WebSharperBundleOutputDir>wwwroot/Content</WebSharperBundleOutputDir>
     <WebProjectOutputDir>$(MSBuildThisFileDirectory)/wwwroot</WebProjectOutputDir>
@@ -9,6 +9,8 @@
   <ItemGroup>
     <Compile Include="Client.fs" />
     <Compile Include="Program.fs" />
+    <None Include="wsconfig.json" />
+    <None Include="paket.references" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\WebSharper.Mvu\WebSharper.Mvu.fsproj" />
