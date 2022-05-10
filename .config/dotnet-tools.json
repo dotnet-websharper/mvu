@@ -2,16 +2,16 @@
   "version": 1,
   "isRoot": true,
   "tools": {
-    "fake-cli": {
-      "version": "5.22.0",
-      "commands": [
-        "fake"
-      ]
-    },
     "paket": {
       "version": "7.1.5",
       "commands": [
         "paket"
+      ]
+    },
+    "fake-cli": {
+      "version": "5.20.4",
+      "commands": [
+        "fake"
       ]
     }
   }
