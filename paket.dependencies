@@ -7,9 +7,9 @@ framework: netstandard2.0
 storage: none
 strategy: min
 
-nuget WebSharper prerelease
-nuget WebSharper.FSharp prerelease
-nuget WebSharper.UI prerelease
+nuget WebSharper ~> 6.0
+nuget WebSharper.FSharp ~> 6.0
+nuget WebSharper.UI ~> 6.0
 
 group wsbuild
     git https://github.com/dotnet-websharper/build-script websharper50
@@ -26,7 +26,7 @@ group test
     nuget Microsoft.AspNetCore.Hosting
     nuget Microsoft.AspNetCore.StaticFiles
     nuget Newtonsoft.Json >= 11.0
-    nuget WebSharper prerelease
-    nuget WebSharper.FSharp prerelease
-    nuget WebSharper.UI prerelease
-    nuget WebSharper.AspNetCore prerelease
+    nuget WebSharper ~> 6.0
+    nuget WebSharper.FSharp ~> 6.0
+    nuget WebSharper.UI ~> 6.0
+    nuget WebSharper.AspNetCore ~> 6.0
