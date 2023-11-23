@@ -7,9 +7,9 @@ framework: netstandard2.0
 storage: none
 strategy: min
 
-nuget WebSharper ~> 6.0
-nuget WebSharper.FSharp ~> 6.0
-nuget WebSharper.UI ~> 6.0
+nuget WebSharper prerelease
+nuget WebSharper.FSharp prerelease
+nuget WebSharper.UI prerelease
 
 group wsbuild
     git https://github.com/dotnet-websharper/build-script websharper50
@@ -22,11 +22,28 @@ group test
     framework: net6.0
     storage: none
 
+    nuget FSharp.Core ~> 7.0
+    
     nuget Microsoft.AspNetCore
     nuget Microsoft.AspNetCore.Hosting
     nuget Microsoft.AspNetCore.StaticFiles
     nuget Newtonsoft.Json >= 11.0
-    nuget WebSharper ~> 6.0
-    nuget WebSharper.FSharp ~> 6.0
-    nuget WebSharper.UI ~> 6.0
-    nuget WebSharper.AspNetCore ~> 6.0
+    nuget WebSharper prerelease
+    nuget WebSharper.FSharp prerelease
+    nuget WebSharper.UI prerelease
+    nuget WebSharper.AspNetCore prerelease
+    nuget Microsoft.AspNetCore.Connections.Abstractions 7.0.13
+    nuget Microsoft.AspNetCore.WebUtilities 2.2
+    nuget Microsoft.Net.Http.Headers 2.2.8
+    nuget System.Text.Json 7.0.3
+    nuget Microsoft.Extensions.Configuration 7.0
+    nuget Microsoft.Extensions.Hosting.Abstractions 7.0
+    nuget Microsoft.Extensions.Logging 7.0
+    nuget Microsoft.Extensions.Configuration.Abstractions 7.0
+    nuget Microsoft.Extensions.DependencyInjection 7.0
+    nuget Microsoft.Extensions.Logging.Abstractions 7.0
+    nuget Microsoft.Extensions.DependencyInjection.Abstractions 7.0
+    nuget Microsoft.Extensions.Features 7.0.13
+    nuget Microsoft.Extensions.FileProviders.Abstractions 7.0
+    nuget Microsoft.Extensions.ObjectPool 7.0.13
+    nuget Microsoft.Extensions.Options 7.0.1

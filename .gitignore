@@ -9,3 +9,4 @@ packages/
 .fake/
 build/
 .vscode/
+websharper.log
