@@ -361,12 +361,12 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
-    WebSharper (7.0.6.443-beta5)
+    WebSharper (7.0.6.447-beta5)
       FSharp.Core (>= 6.0)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.FSharp (7.0.6.443-beta5)
-      WebSharper (7.0.6.443-beta5)
-    WebSharper.UI (7.0.4.443-beta5)
+    WebSharper.FSharp (7.0.6.447-beta5)
+      WebSharper (7.0.6.447-beta5)
+    WebSharper.UI (7.0.4.447-beta5)
       HtmlAgilityPack (>= 1.11)
       WebSharper (>= 7.0.6 < 7.1)
 
@@ -376,7 +376,7 @@ RESTRICTION: == net6.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
     FSharp.Core (7.0.403)
-    HtmlAgilityPack (1.11.59)
+    HtmlAgilityPack (1.11.60)
     Microsoft.AspNetCore (2.2)
       Microsoft.AspNetCore.Diagnostics (>= 2.2)
       Microsoft.AspNetCore.HostFiltering (>= 2.2)
@@ -659,18 +659,18 @@ NUGET
       System.Text.Encodings.Web (>= 7.0)
     System.Threading.Tasks.Extensions (4.5.4)
   remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
-    WebSharper (7.0.6.443-beta5)
+    WebSharper (7.0.6.447-beta5)
       FSharp.Core (>= 6.0)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.AspNetCore (7.0.6.443-beta5)
+    WebSharper.AspNetCore (7.0.6.447-beta5)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Mvc.Abstractions (>= 2.0)
       System.Configuration.ConfigurationManager (>= 4.7)
-      WebSharper (7.0.6.443-beta5)
-    WebSharper.FSharp (7.0.6.443-beta5)
-      WebSharper (7.0.6.443-beta5)
-    WebSharper.UI (7.0.4.443-beta5)
+      WebSharper (7.0.6.447-beta5)
+    WebSharper.FSharp (7.0.6.447-beta5)
+      WebSharper (7.0.6.447-beta5)
+    WebSharper.UI (7.0.4.447-beta5)
       HtmlAgilityPack (>= 1.11)
       WebSharper (>= 7.0.6 < 7.1)
 
@@ -678,4 +678,4 @@ GROUP wsbuild
 
 GIT
   remote: https://github.com/dotnet-websharper/build-script
-     (0153b1033e752df2da5672528e9e04bedafefbea)
+     (52d3d94a012dc8b24f9dc76d8010c2bccc82405d)
