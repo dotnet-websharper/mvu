@@ -361,14 +361,14 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
-    WebSharper (7.0.6.459-beta5)
+    WebSharper (8.0.0.471-beta1)
       FSharp.Core (>= 6.0)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.FSharp (7.0.6.459-beta5)
-      WebSharper (7.0.6.459-beta5)
-    WebSharper.UI (7.0.4.459-beta5)
+    WebSharper.FSharp (8.0.0.471-beta1)
+      WebSharper (8.0.0.471-beta1)
+    WebSharper.UI (8.0.0.471-beta1)
       HtmlAgilityPack (>= 1.11)
-      WebSharper (>= 7.0.6 < 7.1)
+      WebSharper (>= 8.0 < 8.1)
 
 GROUP test
 STORAGE: NONE
@@ -376,7 +376,7 @@ RESTRICTION: == net8.0
 NUGET
   remote: https://api.nuget.org/v3/index.json
     FSharp.Core (7.0.403)
-    HtmlAgilityPack (1.11.61)
+    HtmlAgilityPack (1.11.62)
     Microsoft.AspNetCore (2.2)
       Microsoft.AspNetCore.Diagnostics (>= 2.2)
       Microsoft.AspNetCore.HostFiltering (>= 2.2)
@@ -636,7 +636,7 @@ NUGET
       System.Security.Cryptography.ProtectedData (>= 8.0)
     System.Diagnostics.DiagnosticSource (8.0.1)
     System.Diagnostics.EventLog (8.0)
-    System.Formats.Asn1 (8.0)
+    System.Formats.Asn1 (8.0.1)
     System.IO.Pipelines (8.0)
     System.Memory (4.5.5)
     System.Numerics.Vectors (4.5)
@@ -653,20 +653,20 @@ NUGET
       System.Text.Encodings.Web (>= 7.0)
     System.Threading.Tasks.Extensions (4.5.4)
   remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
-    WebSharper (7.0.6.459-beta5)
+    WebSharper (8.0.0.471-beta1)
       FSharp.Core (>= 6.0)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.AspNetCore (7.0.6.459-beta5)
+    WebSharper.AspNetCore (8.0.0.471-beta1)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Mvc.Abstractions (>= 2.0)
       System.Configuration.ConfigurationManager (>= 4.7)
-      WebSharper (7.0.6.459-beta5)
-    WebSharper.FSharp (7.0.6.459-beta5)
-      WebSharper (7.0.6.459-beta5)
-    WebSharper.UI (7.0.4.459-beta5)
+      WebSharper (8.0.0.471-beta1)
+    WebSharper.FSharp (8.0.0.471-beta1)
+      WebSharper (8.0.0.471-beta1)
+    WebSharper.UI (8.0.0.471-beta1)
       HtmlAgilityPack (>= 1.11)
-      WebSharper (>= 7.0.6 < 7.1)
+      WebSharper (>= 8.0 < 8.1)
 
 GROUP wsbuild
 
