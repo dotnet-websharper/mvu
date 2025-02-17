@@ -2,48 +2,15 @@ source https://api.nuget.org/v3/index.json
 source https://nuget.pkg.github.com/dotnet-websharper/index.json
 source ../localnuget
 
-framework: netstandard2.0
-
-storage: none
+framework: net8.0, netstandard2.0
 strategy: min
+storage: none
 
 nuget WebSharper prerelease
 nuget WebSharper.FSharp prerelease
 nuget WebSharper.UI prerelease
+nuget WebSharper.AspNetCore prerelease
 
 group wsbuild
     git https://github.com/dotnet-websharper/build-script websharper80
 
-
-group test
-    source https://api.nuget.org/v3/index.json
-    source https://nuget.pkg.github.com/dotnet-websharper/index.json
-    source ../localnuget
-    framework: net8.0
-    storage: none
-
-    nuget FSharp.Core ~> 7.0
-    
-    nuget Microsoft.AspNetCore
-    nuget Microsoft.AspNetCore.Hosting
-    nuget Microsoft.AspNetCore.StaticFiles
-    nuget Newtonsoft.Json >= 11.0
-    nuget WebSharper prerelease
-    nuget WebSharper.FSharp prerelease
-    nuget WebSharper.UI prerelease
-    nuget WebSharper.AspNetCore prerelease
-    nuget Microsoft.AspNetCore.Connections.Abstractions 7.0.13
-    nuget Microsoft.AspNetCore.WebUtilities 2.2
-    nuget Microsoft.Net.Http.Headers 2.2.8
-    nuget System.Text.Json 7.0.3
-    nuget Microsoft.Extensions.Configuration 7.0
-    nuget Microsoft.Extensions.Hosting.Abstractions 7.0
-    nuget Microsoft.Extensions.Logging 7.0
-    nuget Microsoft.Extensions.Configuration.Abstractions 7.0
-    nuget Microsoft.Extensions.DependencyInjection 7.0
-    nuget Microsoft.Extensions.Logging.Abstractions 7.0
-    nuget Microsoft.Extensions.DependencyInjection.Abstractions 7.0
-    nuget Microsoft.Extensions.Features 7.0.13
-    nuget Microsoft.Extensions.FileProviders.Abstractions 7.0
-    nuget Microsoft.Extensions.ObjectPool 7.0.13
-    nuget Microsoft.Extensions.Options 7.0.1

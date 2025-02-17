@@ -1,8 +1,3 @@
-group test
-	Microsoft.AspNetCore
-	Microsoft.AspNetCore.Hosting
-	Microsoft.AspNetCore.StaticFiles
-	WebSharper
-	WebSharper.FSharp
-	WebSharper.UI
-	FSharp.Core
+WebSharper
+WebSharper.FSharp
+WebSharper.UI
