@@ -7,6 +7,7 @@
     <WebProjectOutputDir>$(MSBuildThisFileDirectory)/wwwroot</WebProjectOutputDir>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="esbuild.config.mjs" />
     <Compile Include="Client.fs" />
     <Compile Include="Program.fs" />
     <None Include="wsconfig.json" />
@@ -15,5 +16,9 @@
   <ItemGroup>
     <ProjectReference Include="..\WebSharper.Mvu\WebSharper.Mvu.fsproj" />
   </ItemGroup>
+  <Target Name="ESBuildBundle" AfterTargets="WebSharperCompile">
+    <Exec Command="npm install" />
+    <Exec Command="node ./esbuild.config.mjs" />
+  </Target>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>

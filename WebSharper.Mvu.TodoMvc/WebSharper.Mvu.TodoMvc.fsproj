@@ -4,6 +4,7 @@
     <TargetFramework>net8.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="esbuild.config.mjs" />
     <Compile Include="TodoMvc.fs" />
     <Compile Include="Startup.fs" />
     <Compile Include="Program.fs" />
@@ -13,5 +14,9 @@
   <ItemGroup>
     <ProjectReference Include="../WebSharper.Mvu/WebSharper.Mvu.fsproj" />
   </ItemGroup>
+  <Target Name="ESBuildBundle" AfterTargets="WebSharperCompile">
+    <Exec Command="npm install" />
+    <Exec Command="node ./esbuild.config.mjs" />
+  </Target>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>
