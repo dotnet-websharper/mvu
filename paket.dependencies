@@ -21,10 +21,11 @@ group test
     source ../localnuget
     framework: net6.0
     storage: none
+    strategy: min
 
-    nuget Microsoft.AspNetCore
-    nuget Microsoft.AspNetCore.Hosting
-    nuget Microsoft.AspNetCore.StaticFiles
+    nuget Microsoft.AspNetCore 2.0.0
+    nuget Microsoft.AspNetCore.Hosting 2.0.0
+    nuget Microsoft.AspNetCore.StaticFiles 2.0.0
     nuget Newtonsoft.Json >= 11.0
     nuget WebSharper ~> 6.0
     nuget WebSharper.FSharp ~> 6.0
