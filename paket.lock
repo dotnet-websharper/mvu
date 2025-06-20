@@ -428,20 +428,20 @@ NUGET
       System.Xml.XmlDocument (>= 4.3)
       System.Xml.XPath (>= 4.3)
   remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
-    WebSharper (9.1.1.557)
+    WebSharper (10.0.0.580-beta1)
       FSharp.Core (>= 6.0)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.AspNetCore (9.1.1.557)
+    WebSharper.AspNetCore (10.0.0.580-beta1)
       Microsoft.AspNetCore.Authentication.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Hosting.Abstractions (>= 2.0)
       Microsoft.AspNetCore.Mvc.Abstractions (>= 2.0)
       System.Configuration.ConfigurationManager (>= 4.7)
-      WebSharper (9.1.1.557)
-    WebSharper.FSharp (9.1.1.557)
-      WebSharper (9.1.1.557)
-    WebSharper.UI (9.1.1.557)
+      WebSharper (10.0.0.580-beta1)
+    WebSharper.FSharp (10.0.0.580-beta1)
+      WebSharper (10.0.0.580-beta1)
+    WebSharper.UI (10.0.0.580-beta1)
       HtmlAgilityPack (>= 1.11)
-      WebSharper (>= 9.1.1 < 9.2)
+      WebSharper (>= 10.0.0.580-beta1 < 10.0.1-beta)
 
 GROUP wsbuild
 
