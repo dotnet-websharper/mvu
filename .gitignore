@@ -3,6 +3,7 @@ bin/
 obj/
 *.user
 */wwwroot/Content/
+*/wwwroot/Scripts/
 node_modules/
 paket-files/
 packages/

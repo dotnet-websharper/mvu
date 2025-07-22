@@ -1,9 +1,9 @@
 ﻿import { existsSync, cpSync, readdirSync } from 'fs'
 import { build } from 'esbuild'
 
-const files = readdirSync('./build/');
+cpSync('./build/', './wwwroot/Scripts/', { recursive: true });
 
-cpSync('./build/WebSharper.Mvu.TodoMvc.css', './wwwroot/Scripts/WebSharper.Mvu.TodoMvc.css', { force: true });
+const files = readdirSync('./build/');
 
 files.forEach(file => {
   if (file.endsWith('.js')) {
