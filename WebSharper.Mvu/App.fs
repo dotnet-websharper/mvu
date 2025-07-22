@@ -290,7 +290,7 @@ module App =
             (modelSerializer: Serializer<'Model>)
             (options: RemoteDev.Options)
             (app: App<'Message, 'Model, _>) =
-        let rdev = RemoteDev.ConnectViaExtension(options)
+        let rdev = RemoteDev.Connect(options)
         // Not sure why this is necessary :/
         let decode (m: obj) =
             match m with
@@ -331,3 +331,54 @@ module App =
     [<Inline>]
     let WithRemoteDev options (app: App<'Message, 'Model, _>) =
         withRemoteDev Serializer.Typed<'Message> Serializer.Typed<'Model> options app
+
+    let private withReduxDevTools
+            (msgSerializer: Serializer<'Message>)
+            (modelSerializer: Serializer<'Model>)
+            (options: ReduxDevTools.Options)
+            (app: App<'Message, 'Model, _>) =
+        let rdev = ReduxDevTools.Connect(options)
+        // Not sure why this is necessary :/
+        let decode (m: obj) =
+            match m with
+            | :? string as s -> modelSerializer.Decode (JSON.Parse s)
+            | m -> modelSerializer.Decode m
+        rdev.subscribe(fun msg ->
+            if msg.``type`` = RemoteDev.MsgTypes.Dispatch then
+                match msg.payload.``type`` with
+                | RemoteDev.PayloadTypes.JumpToAction
+                | RemoteDev.PayloadTypes.JumpToState ->
+                    let state = decode (RemoteDev.ExtractState msg)
+                    app.Var.Set state
+                | RemoteDev.PayloadTypes.ImportState ->
+                    let state = msg.payload.nextLiftedState.computedStates |> Array.last
+                    let state = decode state?state
+                    app.Var.Set state
+                    rdev.send(null, msg.payload.nextLiftedState)
+                | _ -> ()
+        )
+        |> ignore
+        let update dispatch msg model =
+            let newModel = app.Update dispatch msg model
+            match newModel with
+            | Some newModel ->
+                rdev.send(
+                    msgSerializer.Encode msg,
+                    modelSerializer.Encode newModel
+                )
+            | None -> ()
+            newModel
+        let init dispatch =
+            app.Init dispatch
+            app.View |> View.Get (fun st ->
+                rdev.init(modelSerializer.Encode st)
+            )
+        { app with Init = init; Update = update }
+
+    [<Inline>]
+    let WithReduxDevTools (app: App<'Message, 'Model, _>) =
+        withReduxDevTools Serializer.Typed<'Message> Serializer.Typed<'Model> (ReduxDevTools.Options()) app
+
+    [<Inline>]
+    let WithReduxDevToolsOptions options (app: App<'Message, 'Model, _>) =
+        withReduxDevTools Serializer.Typed<'Message> Serializer.Typed<'Model> options app

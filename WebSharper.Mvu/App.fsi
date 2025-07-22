@@ -222,11 +222,32 @@ module App =
     /// <summary>
     /// Add RemoteDev capability to the application.
     /// Allows inspecting the model's history and time-travel debugging.
+    /// needs 'remoteDev
     /// </summary>
     /// <param name="options">The RemoteDev options</param>
     /// <param name="app">The application</param>
     val WithRemoteDev<'Message, 'Model, 'Rendered>
         : options: RemoteDev.Options
+       -> app: App<'Message, 'Model, 'Rendered>
+       -> App<'Message, 'Model, 'Rendered>
+
+    /// <summary>
+    /// Add Redux DevTools capability to the application.
+    /// Allows inspecting the model's history and time-travel debugging.
+    /// </summary>
+    /// <param name="app">The application</param>
+    val WithReduxDevTools<'Message, 'Model, 'Rendered>
+        : app: App<'Message, 'Model, 'Rendered>
+       -> App<'Message, 'Model, 'Rendered>
+
+    /// <summary>
+    /// Add Redux DevTools capability to the application.
+    /// Allows inspecting the model's history and time-travel debugging.
+    /// </summary>
+    /// <param name="options">The Redux DevTools options</param>
+    /// <param name="app">The application</param>
+    val WithReduxDevToolsOptions<'Message, 'Model, 'Rendered>
+        : options: ReduxDevTools.Options
        -> app: App<'Message, 'Model, 'Rendered>
        -> App<'Message, 'Model, 'Rendered>
 

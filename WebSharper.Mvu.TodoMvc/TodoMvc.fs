@@ -214,5 +214,5 @@ let Main () =
     App.CreateSimple TodoList.Model.Empty TodoList.Update TodoList.Render
     |> App.WithRouting (Router.Infer()) (fun (model: TodoList.Model) -> model.EndPoint)
     // |> App.WithLocalStorage "todolist"
-    |> App.WithRemoteDev (RemoteDev.Options(hostname = "localhost", port = 8000))
+    |> App.WithReduxDevTools
     |> App.Run

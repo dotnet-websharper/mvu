@@ -18,7 +18,6 @@
 //
 // $end{copyright}
 [<WebSharper.JavaScript>]
-[<WebSharper.Require(typeof<WebSharper.Mvu.Resources.RemoteDevJs>)>]
 module WebSharper.RemoteDev
 
 open WebSharper
@@ -89,8 +88,11 @@ type Connection =
     member this.send(x: obj, y: obj) = X<unit>
     member this.error(x: obj) = X<unit>
 
-[<Inline "RemoteDev.connectViaExtension($options)">]
-let ConnectViaExtension(options: Options) = X<Connection>
+[<Import("connect", "remotedev")>]
+let Connect(options: Options) = X<Connection>
 
-[<Inline "RemoteDev.extractState($s)">]
-let ExtractState(s: obj) = X<obj>
+[<Import("parse","jsan")>]
+let parse (x: string) = X<obj>
+
+[<Inline>]
+let ExtractState(message: Msg) = parse message.state
