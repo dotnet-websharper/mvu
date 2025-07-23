@@ -38,6 +38,12 @@ module PayloadTypes =
     let JumpToState = "JUMP_TO_STATE"
     [<Literal>]
     let JumpToAction = "JUMP_TO_ACTION"
+    [<Literal>]
+    let Reset = "RESET"
+    [<Literal>]
+    let Rollback = "ROLLBACK"
+    [<Literal>]
+    let Commit = "COMMIT"
 
 [<Stub>]
 type Options [<Inline "{}">] () =
