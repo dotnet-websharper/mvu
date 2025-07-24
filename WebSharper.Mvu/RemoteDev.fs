@@ -97,8 +97,5 @@ type Connection =
 [<Import("connect", "remotedev")>]
 let Connect(options: Options) = X<Connection>
 
-[<Import("parse","jsan")>]
-let parse (x: string) = X<obj>
-
-[<Inline>]
-let ExtractState(message: Msg) = parse message.state
+[<Import("extractState","remotedev")>]
+let ExtractState(message: Msg) = X<obj>

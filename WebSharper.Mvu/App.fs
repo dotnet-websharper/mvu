@@ -338,11 +338,6 @@ module App =
             (options: ReduxDevTools.Options)
             (app: App<'Message, 'Model, _>) =
         let rdev = ReduxDevTools.Connect(options)
-        // Not sure why this is necessary :/
-        let decode (m: obj) =
-            match m with
-            | :? string as s -> modelSerializer.Decode (JSON.Parse s)
-            | m -> modelSerializer.Decode m
         let mutable startState = JS.Undefined
         let update dispatch msg model =
             let newModel = app.Update dispatch msg model
@@ -365,19 +360,19 @@ module App =
                         match msg.payload.``type`` with
                         | RemoteDev.PayloadTypes.JumpToAction
                         | RemoteDev.PayloadTypes.JumpToState ->
-                            let state = decode (RemoteDev.ExtractState msg)
+                            let state = modelSerializer.Decode (JSON.Parse msg.state)
                             app.Var.Set state
                         | RemoteDev.PayloadTypes.ImportState ->
                             let state = msg.payload.nextLiftedState.computedStates |> Array.last
-                            let state = decode state?state
+                            let state = modelSerializer.Decode (JSON.Parse state?state)
                             app.Var.Set state
                             rdev.send(null, msg.payload.nextLiftedState)
                         | RemoteDev.PayloadTypes.Reset ->
                             app.Var.Set startState           
                             rdev.init(modelSerializer.Encode startState)
                         | RemoteDev.PayloadTypes.Rollback ->
-                            let msgState = RemoteDev.ExtractState msg 
-                            let state = decode msgState
+                            let msgState = JSON.Parse msg.state
+                            let state = modelSerializer.Decode msgState
                             app.Var.Set state
                             rdev.init(msgState)
                         | RemoteDev.PayloadTypes.Commit ->
