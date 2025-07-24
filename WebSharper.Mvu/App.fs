@@ -337,6 +337,10 @@ module App =
             (modelSerializer: Serializer<'Model>)
             (options: ReduxDevTools.Options)
             (app: App<'Message, 'Model, _>) =
+        if ReduxDevTools.IsAvailable() |> not then
+            JavaScript.Console.Log("Redux DevTools is not installed or available")
+            app
+        else
         let rdev = ReduxDevTools.Connect(options)
         let mutable startState = JS.Undefined
         let update dispatch msg model =

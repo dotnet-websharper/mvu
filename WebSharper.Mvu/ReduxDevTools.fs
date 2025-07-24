@@ -45,5 +45,8 @@ type Options [<Inline "{}">] () =
     [<DefaultValue>] val mutable actionSanitizer : System.Func<obj, int, obj>
     [<DefaultValue>] val mutable stateSanitizer : System.Func<obj, int, obj>
 
+[<Inline "$global.__REDUX_DEVTOOLS_EXTENSION__">]
+let IsAvailable() = X<bool>
+
 [<Inline "$global.__REDUX_DEVTOOLS_EXTENSION__.connect($0)">]
 let Connect(options: Options) = X<RemoteDev.Connection>
