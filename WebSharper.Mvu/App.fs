@@ -344,36 +344,6 @@ module App =
             | :? string as s -> modelSerializer.Decode (JSON.Parse s)
             | m -> modelSerializer.Decode m
         let mutable startState = JS.Undefined
-        rdev.subscribe(fun msg ->
-            match msg.``type`` with
-            | RemoteDev.MsgTypes.Dispatch ->
-                match msg.payload.``type`` with
-                | RemoteDev.PayloadTypes.JumpToAction
-                | RemoteDev.PayloadTypes.JumpToState ->
-                    let state = decode (RemoteDev.ExtractState msg)
-                    app.Var.Set state
-                | RemoteDev.PayloadTypes.ImportState ->
-                    let state = msg.payload.nextLiftedState.computedStates |> Array.last
-                    let state = decode state?state
-                    app.Var.Set state
-                    rdev.send(null, msg.payload.nextLiftedState)
-                | RemoteDev.PayloadTypes.Reset ->
-                    app.Var.Set startState           
-                    rdev.init(modelSerializer.Encode startState)
-                | RemoteDev.PayloadTypes.Rollback ->
-                    let msgState = RemoteDev.ExtractState msg 
-                    let state = decode msgState
-                    app.Var.Set state
-                    rdev.init(msgState)
-                | RemoteDev.PayloadTypes.Commit ->
-                    app.View |> View.Get (fun st ->
-                        rdev.init(modelSerializer.Encode st)
-                    )
-                | _ -> 
-                    JavaScript.Console.Log("Redux DevTools feature not handled by WebSharper.MVU: ", msg.payload.``type``)
-            | _ -> ()
-        )
-        |> ignore
         let update dispatch msg model =
             let newModel = app.Update dispatch msg model
             match newModel with
@@ -388,6 +358,41 @@ module App =
             app.Init dispatch
             app.View |> View.Get (fun st ->
                 startState <- st
+
+                rdev.subscribe(fun msg ->
+                    match msg.``type`` with
+                    | RemoteDev.MsgTypes.Dispatch ->
+                        match msg.payload.``type`` with
+                        | RemoteDev.PayloadTypes.JumpToAction
+                        | RemoteDev.PayloadTypes.JumpToState ->
+                            let state = decode (RemoteDev.ExtractState msg)
+                            app.Var.Set state
+                        | RemoteDev.PayloadTypes.ImportState ->
+                            let state = msg.payload.nextLiftedState.computedStates |> Array.last
+                            let state = decode state?state
+                            app.Var.Set state
+                            rdev.send(null, msg.payload.nextLiftedState)
+                        | RemoteDev.PayloadTypes.Reset ->
+                            app.Var.Set startState           
+                            rdev.init(modelSerializer.Encode startState)
+                        | RemoteDev.PayloadTypes.Rollback ->
+                            let msgState = RemoteDev.ExtractState msg 
+                            let state = decode msgState
+                            app.Var.Set state
+                            rdev.init(msgState)
+                        | RemoteDev.PayloadTypes.Commit ->
+                            app.View |> View.Get (fun st ->
+                                rdev.init(modelSerializer.Encode st)
+                            )
+                        | _ -> 
+                            JavaScript.Console.Log("Redux DevTools feature not handled by WebSharper.MVU: ", msg.payload.``type``)
+                    | RemoteDev.MsgTypes.Action ->
+                        let action = msgSerializer.Decode (JS.Eval ("(" + msg?payload + ")"))
+                        dispatch action
+                    | _ -> ()
+                )
+                |> ignore
+
                 rdev.init(modelSerializer.Encode st)
             )
         { app with Init = init; Update = update }
