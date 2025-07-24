@@ -47,6 +47,3 @@ type Options [<Inline "{}">] () =
 
 [<Inline "$global.__REDUX_DEVTOOLS_EXTENSION__.connect($0)">]
 let Connect(options: Options) = X<RemoteDev.Connection>
-
-[<Import("parse","jsan")>]
-let parse (x: string) = X<obj>
