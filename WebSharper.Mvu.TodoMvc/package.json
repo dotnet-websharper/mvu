@@ -2,6 +2,10 @@
   "name": "WebSharper.Mvu.TodoMvc",
   "version": "1.0.0",
   "devDependencies": {
+    "@redux-devtools/cli": "^4.0.3",
     "esbuild": "^0.19.9"
+  },
+  "dependencies": {
+    "@redux-devtools/remote": "^0.9.5"
   }
 }

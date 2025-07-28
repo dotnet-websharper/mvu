@@ -18,7 +18,6 @@
 //
 // $end{copyright}
 [<WebSharper.JavaScript>]
-[<WebSharper.Require(typeof<WebSharper.Mvu.Resources.RemoteDevJs>)>]
 module WebSharper.RemoteDev
 
 open WebSharper
@@ -39,6 +38,12 @@ module PayloadTypes =
     let JumpToState = "JUMP_TO_STATE"
     [<Literal>]
     let JumpToAction = "JUMP_TO_ACTION"
+    [<Literal>]
+    let Reset = "RESET"
+    [<Literal>]
+    let Rollback = "ROLLBACK"
+    [<Literal>]
+    let Commit = "COMMIT"
 
 [<Stub>]
 type Options [<Inline "{}">] () =
@@ -89,8 +94,8 @@ type Connection =
     member this.send(x: obj, y: obj) = X<unit>
     member this.error(x: obj) = X<unit>
 
-[<Inline "RemoteDev.connectViaExtension($options)">]
-let ConnectViaExtension(options: Options) = X<Connection>
+[<Import("connect", "remotedev")>]
+let Connect(options: Options) = X<Connection>
 
-[<Inline "RemoteDev.extractState($s)">]
-let ExtractState(s: obj) = X<obj>
+[<Import("extractState","remotedev")>]
+let ExtractState(message: Msg) = X<obj>

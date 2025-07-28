@@ -8,17 +8,18 @@
     <Compile Include="Resources.fs" />
     <Compile Include="Macros.fs" />
     <Compile Include="RemoteDev.fs" />
+    <Compile Include="ReduxDevTools.fs" />
     <Compile Include="App.fsi" />
     <Compile Include="App.fs" />
-    <None Include="src/index.js" />
-    <EmbeddedResource Include="dist/remotedev.js">
-      <LogicalName>remotedev.js</LogicalName>
-    </EmbeddedResource>
     <EmbeddedResource Include="page.css">
       <LogicalName>page.css</LogicalName>
     </EmbeddedResource>
     <None Include="wsconfig.json" />
     <None Include="paket.references" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="dist\" />
+    <Folder Include="src\" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>
