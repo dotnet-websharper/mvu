@@ -10,17 +10,17 @@ NUGET
       System.Reflection.Emit.ILGeneration (>= 4.7) - restriction: || (&& (== net8.0) (< netcoreapp2.0) (< netstandard2.1)) (&& (== net8.0) (< netstandard2.0)) (&& (== net8.0) (< portable-net45+wp8)) (&& (== net8.0) (>= uap10.1)) (== netstandard2.0)
     System.Text.Json (5.0) - restriction: || (== net8.0) (&& (== netstandard2.0) (>= net5.0))
   remote: https://nuget.pkg.github.com/dotnet-websharper/index.json
-    WebSharper (10.1.0.664)
+    WebSharper (10.1.0.666)
       FSharp.Core (>= 6.0)
       System.Reflection.Emit.Lightweight (>= 4.7)
-    WebSharper.AspNetCore (10.1.0.664)
+    WebSharper.AspNetCore (10.1.0.666)
       System.Text.Json (>= 5.0) - restriction: || (== net8.0) (&& (== netstandard2.0) (>= net5.0))
-      WebSharper (10.1.0.664) - restriction: || (== net8.0) (&& (== netstandard2.0) (>= net5.0))
-    WebSharper.FSharp (10.1.0.664)
-      WebSharper (10.1.0.664)
-    WebSharper.UI (10.1.0.664)
+      WebSharper (10.1.0.666) - restriction: || (== net8.0) (&& (== netstandard2.0) (>= net5.0))
+    WebSharper.FSharp (10.1.0.666)
+      WebSharper (10.1.0.666)
+    WebSharper.UI (10.1.0.666)
       HtmlAgilityPack (>= 1.12.4)
-      WebSharper (>= 10.1.0.664 < 10.1.1)
+      WebSharper (>= 10.1.0.666 < 10.1.1)
 
 GROUP wsbuild
 
